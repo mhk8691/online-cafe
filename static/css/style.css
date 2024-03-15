@@ -1,0 +1,19 @@
+[class^="imghvr-"],
+[class*=" imghvr-"] {
+  background-color: green !important;
+}
+[class^="imghvr-"] figcaption,
+[class*=" imghvr-"] figcaption {
+  background-color: darkgreen !important;
+}
+.dark-mode {
+  width: 60px;
+  height: 60px;
+}
+
+body {
+  transition: background-color 0.4s ease;
+}
+input {
+  box-shadow: none !important;
+}

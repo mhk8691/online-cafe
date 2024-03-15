@@ -1,0 +1,19 @@
+label {
+  font-size: 14px;
+}
+::placeholder {
+  font-size: 14px;
+}
+p {
+  font-size: 14px;
+}
+img {
+  object-fit: cover;
+}
+h6 {
+  font-size: 14px;
+  font-weight: normal;
+}
+a {
+  text-decoration: none;
+}

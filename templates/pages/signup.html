@@ -1,0 +1,96 @@
+{% extends "base.html" %} {% block head %}
+<link rel="stylesheet" href="../../static/css/signup.css" />
+<title>signup</title>
+
+{% endblock head %} {% block body %}
+
+<div class="container mt-3 text-bg-light">
+  <div class="row g-0 py-3">
+    <div class="col-lg-6 p-4">
+      <div class="">
+        <div clasaas="title">
+          <h5 class="text-center">ساخت حساب کاربری👋</h5>
+          <p class="my-4 text-center">
+            لطفا مشخصات خود را برای ایجاد یک حساب کاربری وارد کنید
+          </p>
+        </div>
+        <form
+          action=""
+          method="post"
+          class="d-flex align-items-center flex-column"
+        >
+          <label
+            for="username"
+            class="form-label ps-4 ps-lg-3 ps-xl-4 align-self-start ms-5 ps-md-5"
+            >نام کاربری</label
+          >
+          <input
+            type="text"
+            name="username"
+            id="username"
+            class="form-control mt-1 ps-3 w-75 py-2"
+            placeholder="نام کاربری را وارد کنید"
+            required
+          />
+          <label
+            for="password"
+            class="form-label mt-3 ps-4 ps-lg-3 ps-xl-4 align-self-start ms-5 ps-md-5"
+            >کلمه عبور</label
+          >
+          <input
+            type="password"
+            name="password"
+            id="password"
+            class="form-control mt-1 ps-3 w-75 py-2"
+            placeholder="کلمه عبور را وارد کنید"
+            required
+          />
+          <label
+            for="email"
+            class="form-label mt-3 ps-4 align-self-start ms-5 ps-lg-3 ps-xl-4 ps-md-5"
+            >ایمیل</label
+          >
+          <input
+            type="email"
+            name="email"
+            id="email"
+            class="form-control mt-1 ps-3 w-75 py-2"
+            placeholder="ایمیل را وارد کنید"
+            required
+          />
+          <label
+            for="phone"
+            class="form-label mt-3 ps-4 align-self-start ms-5 ps-lg-3 ps-xl-4 ps-md-5"
+            >تلفن همراه</label
+          >
+          <input
+            type="text"
+            name="phone_number"
+            id="phone_number"
+            class="form-control mt-1 ps-3 w-75 py-2"
+            placeholder="شماره تلفن را وارد کنید"
+            required
+          />
+          <button type="submit" class="btn btn-primary w-75 mt-4 pt-2 pb-2">
+            ثبت نام
+          </button>
+        </form>
+        <h6>{{text}}</h6>
+        <h6 class="mt-4 text-center">
+          آیا از قبل حساب کاربری دارید؟
+          <a href="{{url_for('login')}}" class="ms-1">ورود</a>
+        </h6>
+      </div>
+    </div>
+    <div class="col-lg-6 px-2 d-none d-lg-block">
+      <div class="h-100 w-100">
+        <img
+          src="../../static/img/coffe.jpg"
+          class="w-100 d-block rounded-3 h-100"
+          alt=""
+        />
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock body %}

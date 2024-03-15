@@ -1,0 +1,70 @@
+{% extends "base.html" %} {% block head %}
+<link rel="stylesheet" href="../../static/css/signup.css" />
+<title>login</title>
+
+{% endblock head %} {% block body %}
+<div class="container mt-3 text-bg-light">
+  <div class="row g-0 py-3">
+    <div class="col-lg-6 p-4 d-flex flex-column justify-content-center">
+      <div class="">
+        <div class="title text-center">
+          <h5>خوش آمدید 👋</h5>
+          <p class="mt-3 mb-5">از بازگشت شما خوشحالیم</p>
+        </div>
+        <form
+          action=""
+          method="post"
+          class="d-flex align-items-center flex-column"
+        >
+          <label
+            for="username"
+            class="form-label ps-4 ps-lg-3 ps-xl-4 align-self-start ms-5 ps-md-5"
+            >نام کاربری</label
+          >
+          <input
+            type="text"
+            name="username"
+            id="username"
+            class="form-control mt-1 ps-3 w-75 py-2"
+            placeholder="نام کاربری را وارد کنید"
+          />
+          <label
+            for="password"
+            class="form-label mt-4 ps-4 ps-lg-3 ps-xl-4 align-self-start ms-5 ps-md-5"
+            >کلمه عبور</label
+          >
+          <input
+            type="password"
+            name="password"
+            id="password"
+            class="form-control mt-1 ps-3 w-75 py-2"
+            placeholder="کلمه عبور را وارد کنید"
+          />
+
+          <button type="submit" class="btn btn-primary w-75 mt-5 p-2">
+            ورود
+          </button>
+        </form>
+        <h6 class="mt-5 text-center">
+          آیا حساب کاربری ندارید؟
+          <a href="{{url_for('signup')}}" class="ms-1">ثبت نام</a>
+        </h6>
+        <h6 class="mt-4 text-center">
+          <a href="{{url_for('reset_password')}}">بازنشانی کلمه عبور</a>
+        </h6>
+        <h6>{{string}}</h6>
+      </div>
+    </div>
+    <div class="col-lg-6 px-2 d-none d-lg-block">
+      <div class="h-100 w-100">
+        <img
+          src="../../static/img/gallery (8).jpg"
+          class="w-100 d-block rounded-3 h-100"
+          alt=""
+        />
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock body %}
