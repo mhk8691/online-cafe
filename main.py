@@ -2,7 +2,7 @@ from flask import Flask, redirect, url_for, request, render_template, jsonify
 import sqlite3
 import connect_db
 import user_acount
-
+import admin
 # Connect to the database
 conn = sqlite3.connect("onlineShop.db", check_same_thread=False)
 conn.row_factory = sqlite3.Row
