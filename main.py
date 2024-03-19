@@ -40,16 +40,19 @@ def home():
 
 @app.route("/home/category/<int:category_id>")
 def product(category_id):
-    connection.execute(
-        """
+    if len(customer_information) == 0:
+        return redirect(url_for("login"))
+    else:
+        connection.execute(
+            """
         SELECT Products.product_id, Products.name, Products.description, Products.price, Products.picture
         FROM Products
         INNER JOIN Categories
         ON Products.categories_id = Categories.category_id
         WHERE category_id = ?
         """,
-        (category_id,),  # Pass category_id as a tuple
-    )
+            (category_id,),  # Pass category_id as a tuple
+        )
     products = connection.fetchall()
     connection.execute(
         "SELECT name FROM Categories WHERE category_id = ?", (str(category_id),)
@@ -74,23 +77,68 @@ def product(category_id):
     )
 
 
-@app.route("/home/product-details/<int:id>")
-def product_details(id):
+def cart(product_id):
     connection.execute(
-        """SELECT product_id, name, description, price, picture FROM Products WHERE product_id = ? """,
-        (id,)
+        "INSERT INTO cart (customer_id,product_id,quantity) VALUES (?,?,?)",
+        (customer_information[0], product_id, 1),
     )
-    product = connection.fetchone()
+    conn.commit()
 
-    product_data = {
-        "product_id": product[0],
-        "name": product[1],
-        "description": product[2],
-        "price": product[3],
-        "picture": base64.b64encode(product[4]).decode("utf-8")  
-    }
-    print(product_data)
-    return render_template("pages/product-details.html", product_data=product_data)
+
+@app.route("/home/product-details/<int:id>", methods=["POST", "GET"])
+def product_details(id):
+    if len(customer_information) == 0:
+        return redirect(url_for("login"))
+    else:
+        connection.execute(
+            """SELECT product_id, name, description, price, picture FROM Products WHERE product_id = ? """,
+            (id,),
+        )
+        product = connection.fetchone()
+
+        product_data = {
+            "product_id": product[0],
+            "name": product[1],
+            "description": product[2],
+            "price": product[3],
+            "picture": base64.b64encode(product[4]).decode("utf-8"),
+        }
+        if request.method == "POST":
+            cart(product_data["product_id"])
+        return render_template("pages/product-details.html", product_data=product_data)
+
+
+@app.route("/cart/", methods=["POST", "GET"])
+def user_cart():
+    if len(customer_information) == 0:
+        return redirect(url_for("login"))
+    else:
+        connection.execute(
+            """SELECT Products.product_id,Products.name,Products.description,Products.price,Products.picture
+from Products
+inner join cart
+on cart.product_id = Products.product_id
+where cart.customer_id = ?""",
+            (customer_information[0],),
+        )
+        carts = connection.fetchall()
+        product_list = []
+
+        for cart in carts:
+
+            product_list.append(
+                {
+                    "product_id": cart[0],
+                    "name": cart[1],
+                    "description": cart[2],
+                    "price": cart[3],
+                    "picture": base64.b64encode(cart[4]).decode("utf-8"),
+                }
+            )
+        return render_template(
+            "pages/cart.html",
+            product_list=product_list,
+        )
 
 
 if __name__ == "__main__":
