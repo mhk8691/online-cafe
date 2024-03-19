@@ -51,11 +51,13 @@ def product(category_id):
         (category_id,),  # Pass category_id as a tuple
     )
     products = connection.fetchall()
-    connection.execute("SELECT name FROM Categories WHERE category_id = ?", (str(category_id),))
+    connection.execute(
+        "SELECT name FROM Categories WHERE category_id = ?", (str(category_id),)
+    )
     category_name = connection.fetchone()
 
     product_list = []
-    
+
     for product in products:
         picture_base64 = base64.b64encode(product[4]).decode("utf-8")
         product_list.append(
@@ -70,6 +72,25 @@ def product(category_id):
     return render_template(
         "pages/product.html", product_list=product_list, category_name=category_name[0]
     )
+
+
+@app.route("/home/product-details/<int:id>")
+def product_details(id):
+    connection.execute(
+        """SELECT product_id, name, description, price, picture FROM Products WHERE product_id = ? """,
+        (id,)
+    )
+    product = connection.fetchone()
+
+    product_data = {
+        "product_id": product[0],
+        "name": product[1],
+        "description": product[2],
+        "price": product[3],
+        "picture": base64.b64encode(product[4]).decode("utf-8")  
+    }
+    print(product_data)
+    return render_template("pages/product-details.html", product_data=product_data)
 
 
 if __name__ == "__main__":

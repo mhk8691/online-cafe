@@ -1,7 +1,13 @@
 {% extends "base.html" %} {% block head %}
-
+<title>Document</title>
 <link rel="stylesheet" href="../../static/css/product.css" />
-<title>product</title>
+
+<style>
+  a {
+    text-decoration: none !important;
+  }
+</style>
+
 {% endblock head %} {% block body %}
 <nav class="navbar navbar-expand-lg bg-body-dark mt-2 mx-3">
   <div class="container-fluid d-flex align-items-center">
@@ -144,35 +150,41 @@
     </div>
   </div>
 </nav>
-<div class="container">
-  <h5 class="mt-5 text-center border border-2 py-3 rounded-4">
-    {{category_name}}
-  </h5>
-  <div class="row mt-3 g-3">
-    {% for i in product_list %}
-    <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6">
-      <a href="/home/product-details/{{i['product_id']}}">
-        <div class="card w-100">
-          <img
-            src="data:image/jpeg;base64,{{ i['picture'] }}"
-            class="w-100"
-            alt="img"
-          />
-          <div class="card-header">
-            <h5 class="card-title">{{i["name"]}}</h5>
+<div class="container mt-5">
+  <div class="row justify-content-center d-flex">
+    <div class="col-md-12 col-lg-9 col-sm-12">
+      <div class="card mb-3 w-100">
+        <div class="row g-0">
+          <div class="col-md-4">
+            <img
+              src="data:image/jpeg;base64,{{ product_data['picture'] }}"
+              class="w-100"
+              alt="img"
+            />
           </div>
-          <div class="card-body">
-            <p class="card-text">{{i["description"]}}</p>
-          </div>
-          <div
-            class="card-footer d-flex justify-content-between align-items-center"
-          >
-            <h6 class="text-primary py-1">{{i["price"]}} تومان</h6>
+          <div class="col-md-8">
+            <div class="card-header">
+              <h5 class="card-title">{{product_data['name']}}</h5>
+            </div>
+            <div class="card-body">
+              <p class="card-text mb-5">{{product_data['description']}}</p>
+            </div>
+            <div class="card-footer d-flex justify-content-between">
+              <div class="h-100">
+                <h6 class="m-2 py-2 text-success">
+                  {{product_data['price']}} تومان
+                </h6>
+              </div>
+              <div class="h-100">
+                <button class="btn btn-primary py-2 m-2">
+                  افزودن به سبد خرید
+                </button>
+              </div>
+            </div>
           </div>
         </div>
-      </a>
+      </div>
     </div>
-    {% endfor %}
   </div>
 </div>
 
