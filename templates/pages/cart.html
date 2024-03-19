@@ -8,6 +8,7 @@
   }
 </style>
 
+
 {% endblock head %} {% block body %}
 <nav class="navbar navbar-expand-lg bg-body-dark mt-2 mx-3">
   <div class="container-fluid d-flex align-items-center">
@@ -32,16 +33,16 @@
       <div class="offcanvas-body">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item mt-3 ms-2 ms-lg-0 mt-lg-0">
-            <a class="nav-link active" aria-current="page" href="#">خانه</a>
+            <a class="nav-link " aria-current="page" href="{{url_for('home')}}">خانه</a>
           </li>
           <li class="nav-item mt-3 ms-2 ms-lg-0 mt-lg-0">
-            <a class="nav-link" href="{{url_for('user_cart')}}">سبد خرید</a>
+            <a class="nav-link active" href="{{url_for('user_cart')}}">سبد خرید</a>
           </li>
           <li class="nav-item mt-3 ms-2 ms-lg-0 mt-lg-0">
             <a class="nav-link" href="#">درباره ما</a>
           </li>
           <li class="nav-item mt-3 ms-2 ms-lg-0 mt-lg-0">
-            <a href="" class="nav-link">دسته بندی ها</a>
+            <a href="{{url_for('home')}}" class="nav-link">دسته بندی ها</a>
           </li>
         </ul>
       </div>
@@ -154,9 +155,9 @@
   </div>
 </nav>
 <div class="container mt-5">
-  <div class="row justify-content-center d-flex">
+  <div class="row">
     {% for i in product_list %}
-    <div class="col-md-12 col-lg-9 col-sm-12">
+    <div class="col-md-12 col-lg-9 col-sm-12 animate__animated animate__flipInX">
       <div class="card mb-3 w-100">
         <div class="row g-0">
           <div class="col-md-4">
@@ -173,25 +174,33 @@
             <div class="card-body">
               <p class="card-text mb-5">{{i['description']}}</p>
             </div>
-            <div class="card-footer d-flex justify-content-between">
+            <div
+              class="card-footer d-flex justify-content-between align-items-center"
+            >
               <div class="h-100">
                 <h6 class="m-2 py-2 text-success">{{i['price']}} تومان</h6>
               </div>
-              <div class="h-100">
-                <form action="" method="post">
-                  <button>حذف</button>
-                  <input type="text" />
-                  <button>اضافه</button>
-                  <button type="submit">تایید</button>
+              <div class="h-100  ">
+                <form action="{{url_for('user_cart')}}" method="POST" class="d-flex align-items-center justify-content-end">
+                  <div class="btn-group">
+                    <input type="number" value="{{i['quantity']}}" class="w-50 text-center" name="number"/>
+                    <input type="number" value="{{i['product_id']}}" class="w-50 text-center d-none" name="product_id"/>
+
+                  <button class="btn btn-success w-25" type="submit">تایید</button>
+                  </div>
                 </form>
               </div>
             </div>
           </div>
         </div>
       </div>
+      </div>
+      {% endfor %}
     </div>
-    {% endfor %}
   </div>
-</div>
+  <script src="../../static/js/script.js">
 
-{% endblock body %}
+</script>
+  {% endblock body %}
+  
+</div>

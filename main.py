@@ -38,6 +38,7 @@ def home():
         return render_template("pages/index.html", list=list, len=len(list))
 
 
+# show all product
 @app.route("/home/category/<int:category_id>")
 def product(category_id):
     if len(customer_information) == 0:
@@ -77,6 +78,7 @@ def product(category_id):
     )
 
 
+# Add to cart
 def cart(product_id):
     connection.execute(
         "INSERT INTO cart (customer_id,product_id,quantity) VALUES (?,?,?)",
@@ -85,6 +87,7 @@ def cart(product_id):
     conn.commit()
 
 
+# View product_details
 @app.route("/home/product-details/<int:id>", methods=["POST", "GET"])
 def product_details(id):
     if len(customer_information) == 0:
@@ -108,17 +111,34 @@ def product_details(id):
         return render_template("pages/product-details.html", product_data=product_data)
 
 
+# View shopping cart
 @app.route("/cart/", methods=["POST", "GET"])
 def user_cart():
     if len(customer_information) == 0:
         return redirect(url_for("login"))
     else:
+        if request.method == "POST":
+            number = request.form["number"]
+            product_id = request.form["product_id"]
+            if int(number) >= 1:
+                connection.execute(
+                    "UPDATE cart SET quantity = ? WHERE product_id = ? ",
+                    (number, product_id),
+                )
+                conn.commit()
+            elif int(number) == 0:
+
+                connection.execute(
+                    "DELETE FROM cart WHERE product_id = ? ",
+                    (product_id,),
+                )
+                conn.commit()
         connection.execute(
-            """SELECT Products.product_id,Products.name,Products.description,Products.price,Products.picture
-from Products
-inner join cart
-on cart.product_id = Products.product_id
-where cart.customer_id = ?""",
+            """SELECT Products.product_id,Products.name,Products.description,Products.price,Products.picture,quantity
+                from Products
+                inner join cart
+                on cart.product_id = Products.product_id
+                where cart.customer_id = ?""",
             (customer_information[0],),
         )
         carts = connection.fetchall()
@@ -133,8 +153,10 @@ where cart.customer_id = ?""",
                     "description": cart[2],
                     "price": cart[3],
                     "picture": base64.b64encode(cart[4]).decode("utf-8"),
+                    "quantity": cart[5],
                 }
             )
+
         return render_template(
             "pages/cart.html",
             product_list=product_list,
