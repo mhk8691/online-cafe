@@ -1,7 +1,7 @@
 from datetime import datetime
 from flask import Flask, redirect, url_for, request, render_template, jsonify
 import sqlite3
-import connect_db
+import connect_db as connect_db
 
 app = connect_db.app
 
