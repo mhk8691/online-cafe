@@ -106,9 +106,27 @@ def product_details(id):
             "price": product[3],
             "picture": base64.b64encode(product[4]).decode("utf-8"),
         }
+
         if request.method == "POST":
             cart(product_data["product_id"])
-        return render_template("pages/product-details.html", product_data=product_data)
+
+        connection.execute(
+            "SELECT * FROM cart WHERE product_id = ? AND customer_id = ?",
+            (id, customer_information[0]),
+        )
+        row = connection.fetchall()
+        if len(row) != 0:
+            display = "d-none"
+            display2 = "d-block"
+        else:
+            display = "d-block"
+            display2 = "d-none"
+        return render_template(
+            "pages/product-details.html",
+            product_data=product_data,
+            display=display,
+            display2=display2,
+        )
 
 
 # View shopping cart
@@ -157,9 +175,27 @@ def user_cart():
                 }
             )
 
+        sql = """
+        SELECT SUM(quantity * Products.price), SUM(quantity)
+        FROM cart
+        INNER JOIN Products ON cart.product_id = Products.product_id
+        WHERE customer_id = ?
+        """
+
+        connection.execute(
+            sql, (customer_information[0],)
+        )  # Enclose customer_id in a tuple for a single parameter
+
+        list_price = connection.fetchall()
+        list_price2 = []
+        for price in list_price:
+            list_price2.append({"Totalprice": price[0], "quantity": price[1]})
+        print(list_price2)
         return render_template(
             "pages/cart.html",
             product_list=product_list,
+            d="d-none",
+            list_price2=list_price2,
         )
 
 
