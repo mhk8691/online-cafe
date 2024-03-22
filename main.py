@@ -129,6 +129,26 @@ def product_details(id):
         )
 
 
+def Totalprice():
+    sql = """
+        SELECT SUM(quantity * Products.price), SUM(quantity)
+        FROM cart
+        INNER JOIN Products ON cart.product_id = Products.product_id
+        WHERE customer_id = ?
+        """
+
+    connection.execute(
+        sql, (customer_information[0],)
+    )  # Enclose customer_id in a tuple for a single parameter
+
+    list_price = connection.fetchall()
+    list_price2 = []
+    for price in list_price:
+        list_price2.append({"Totalprice": price[0], "quantity": price[1]})
+
+    return list_price2
+
+
 # View shopping cart
 @app.route("/cart/", methods=["POST", "GET"])
 def user_cart():
@@ -160,6 +180,12 @@ def user_cart():
             (customer_information[0],),
         )
         carts = connection.fetchall()
+
+        if len(carts) == 0:
+            display = "d-none"
+        else:
+            display = "d-block"
+
         product_list = []
 
         for cart in carts:
@@ -174,29 +200,20 @@ def user_cart():
                     "quantity": cart[5],
                 }
             )
-
-        sql = """
-        SELECT SUM(quantity * Products.price), SUM(quantity)
-        FROM cart
-        INNER JOIN Products ON cart.product_id = Products.product_id
-        WHERE customer_id = ?
-        """
-
-        connection.execute(
-            sql, (customer_information[0],)
-        )  # Enclose customer_id in a tuple for a single parameter
-
-        list_price = connection.fetchall()
-        list_price2 = []
-        for price in list_price:
-            list_price2.append({"Totalprice": price[0], "quantity": price[1]})
-        print(list_price2)
+        list_price2 = Totalprice()
         return render_template(
             "pages/cart.html",
             product_list=product_list,
             d="d-none",
             list_price2=list_price2,
+            display=display,
         )
+        
+
+
+@app.route("/checkout/")
+def checkout():
+    return jsonify("hello world!")
 
 
 if __name__ == "__main__":

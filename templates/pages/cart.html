@@ -159,20 +159,56 @@
 </nav>
 <div class="container mt-5">
   <div class="row g-3">
-    <div class="col-lg-9">
+    <div class="col-lg-9 {{display}}">
       <div
-        class="border-2 border border-primary mb-3 rounded-1 p-3 d-lg-flex justify-content-between align-items-center"
+        class="border-2 border border-primary mb-3 rounded-1 p-3 d-lg-flex justify-content-between align-items-center {{display}}"
       >
-        <div class="">
+        <div class=" {{display}}">
           <h6 class="d-inline">تعداد کالا ها :</h6>
           <h6 class="d-inline">{{list_price2[0]["quantity"]}}</h6>
         </div>
-        <div class="mt-lg-0 mt-5">
+        <div class="mt-lg-0 mt-5 {{display}}">
           <h6 class="d-inline">جمع سبد خرید :</h6>
           <h6 class="d-inline">{{list_price2[0]["Totalprice"]}}</h6>
         </div>
-        <div class="mt-lg-0 mt-5">
-          <button class="btn btn-success">تایید و تکمیل سفارش</button>
+        <div class="mt-lg-0 mt-5 {{display}}">
+          <a
+            href="#exampleModal"
+            class="btn btn-success"
+            data-bs-toggle="modal"
+          >
+            تایید و تکمیل سفارش
+          </a>
+          <div class="modal fade" id="exampleModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h1 class="modal-title fs-5" id="exampleModalLabel">
+                    Modal title
+                  </h1>
+                  <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                  ></button>
+                </div>
+                <div class="modal-body">...</div>
+                <div class="modal-footer">
+                  <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-bs-dismiss="modal"
+                  >
+                    Close
+                  </button>
+                  <button type="button" class="btn btn-primary">
+                    Save changes
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
