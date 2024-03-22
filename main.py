@@ -201,19 +201,55 @@ def user_cart():
                 }
             )
         list_price2 = Totalprice()
+        query = "SELECT * FROM Shipping_Addresses WHERE customer_id = {}".format(
+            customer_information[0]
+        )
+        connection.execute(query)
+        list_address = connection.fetchall()
+        if len(list_address) == 0:
+            display_address = "#exampleModal"
+            display_address2 = "modal"
+        else:
+            display_address = "http://localhost:5000/checkout/"
+            display_address2 = ""
         return render_template(
             "pages/cart.html",
             product_list=product_list,
             d="d-none",
             list_price2=list_price2,
             display=display,
+            display_address=display_address,
+            display_address2=display_address2,
         )
-        
 
 
-@app.route("/checkout/")
+@app.route("/checkout/", methods=["POST", "GET"])
 def checkout():
-    return jsonify("hello world!")
+    if request.method == "POST":
+        recipient_name = request.form["recipient_name"]
+        address_line1 = request.form["address_line1"]
+        address_line2 = request.form["address_line2"]
+        city = request.form["city"]
+        state = request.form["state"]
+        postal_code = request.form["postal_code"]
+        country = request.form["country"]
+        connection.execute(
+            """ INSERT INTO Shipping_Addresses(customer_id,recipient_name,address_line1,address_line2,city,state,postal_code,country)
+VALUES (?,?,?,?,?,?,?,?)  """,
+            (
+                customer_information[0],
+                recipient_name,
+                address_line1,
+                address_line2,
+                city,
+                state,
+                postal_code,
+                country,
+            ),
+        )
+        conn.commit()
+
+    return render_template("pages/checkout.html")
 
 
 if __name__ == "__main__":

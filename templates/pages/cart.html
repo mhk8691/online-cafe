@@ -173,18 +173,21 @@
         </div>
         <div class="mt-lg-0 mt-5 {{display}}">
           <a
-            href="#exampleModal"
+            href="{{display_address}}"
             class="btn btn-success"
-            data-bs-toggle="modal"
+            data-bs-toggle="{{display_address2}}"
           >
             تایید و تکمیل سفارش
           </a>
+
           <div class="modal fade" id="exampleModal" tabindex="-1">
-            <div class="modal-dialog modal-dialog-centered">
+            <div
+              class="modal-dialog modal-dialog-centered modal-dialog-scrollable"
+            >
               <div class="modal-content">
                 <div class="modal-header">
                   <h1 class="modal-title fs-5" id="exampleModalLabel">
-                    Modal title
+                    آدرس تحویل سفارشات
                   </h1>
                   <button
                     type="button"
@@ -193,18 +196,127 @@
                     aria-label="Close"
                   ></button>
                 </div>
-                <div class="modal-body">...</div>
-                <div class="modal-footer">
-                  <button
-                    type="button"
-                    class="btn btn-secondary"
-                    data-bs-dismiss="modal"
-                  >
-                    Close
-                  </button>
-                  <button type="button" class="btn btn-primary">
-                    Save changes
-                  </button>
+                <div class="modal-body">
+                  <form action="{{url_for('checkout')}}" method="POST">
+                    <label
+                      for="recipient_name"
+                      class="form-label"
+                      style="font-size: 14px"
+                      >نام تحویل گیرنده</label
+                    >
+                    <input
+                      type="text"
+                      style="font-size: 13px"
+                      name="recipient_name"
+                      id="recipient_name"
+                      class="form-control py-2"
+                      required
+                    />
+                    <label
+                      for="address_line1"
+                      class="form-label"
+                      style="font-size: 14px"
+                      >آدرس یک</label
+                    >
+                    <input
+                      type="text"
+                      style="font-size: 13px"
+                      name="address_line1"
+                      id="address_line1"
+                      class="form-control py-2"
+                      required
+                    />
+                    <label
+                      for="address_line2"
+                      class="form-label mt-3"
+                      style="font-size: 14px"
+                      >آدرس دو</label
+                    >
+                    <input
+                      type="text"
+                      style="font-size: 13px"
+                      name="address_line2"
+                      id="address_line2"
+                      class="form-control py-2"
+                      required
+                    />
+                    <label
+                      for="city"
+                      class="form-label mt-3"
+                      style="font-size: 14px"
+                      >شهر</label
+                    >
+                    <select name="city" id="city" class="form-select">
+                      <option value="">انتخاب شهر</option>
+                      <option value="1">تهران</option>
+                      <option value="2">مشهد</option>
+                      <option value="3">اصفهان</option>
+                      <option value="4">شیراز</option>
+                      <option value="5">تبریز</option>
+                      <option value="6">کرج</option>
+                      <option value="7">اهواز</option>
+                      <option value="8">قم</option>
+                      <option value="9">کیش</option>
+                      <option value="10">یزد</option>
+                    </select>
+                    <label
+                      for="state"
+                      class="form-label mt-3"
+                      style="font-size: 14px"
+                      >استان</label
+                    >
+                    <input
+                      type="text"
+                      style="font-size: 13px"
+                      name="state"
+                      id="state"
+                      class="form-control py-2"
+                      required
+                    />
+                    <label
+                      for="postal_code"
+                      class="form-label mt-3"
+                      style="font-size: 14px"
+                      >کد پستی</label
+                    >
+                    <input
+                      type="text"
+                      style="font-size: 13px"
+                      name="postal_code"
+                      id="postal_code"
+                      class="form-control py-2"
+                      required
+                    />
+                    <label
+                      for="country"
+                      class="form-label mt-3"
+                      style="font-size: 14px"
+                      >کشور</label
+                    >
+                    <input
+                      type="text"
+                      style="font-size: 13px"
+                      name="country"
+                      id="country"
+                      class="form-control py-2"
+                      required
+                    />
+                    <div class="modal-footer">
+                      <button
+                        type="button"
+                        class="btn btn-danger w-100 d-block"
+                        data-bs-dismiss="modal"
+                      >
+                        بستن
+                      </button>
+                      <button
+                        type="submit "
+                        class="btn btn-success w-100 d-block"
+                      >
+                        تایید
+                      </button>
+                    </div>
+                  </form>
                 </div>
               </div>
             </div>
