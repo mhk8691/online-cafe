@@ -51,7 +51,7 @@ def checkout():
         country = request.form["country"]
         connection.execute(
             """ INSERT INTO Shipping_Addresses(customer_id,recipient_name,address_line1,address_line2,city,state,postal_code,country)
-VALUES (?,?,?,?,?,?,?,?)  """,
+            VALUES (?,?,?,?,?,?,?,?)  """,
             (
                 customer_information[0],
                 recipient_name,
