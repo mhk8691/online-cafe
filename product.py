@@ -13,6 +13,7 @@ conn = sqlite3.connect("onlineShop.db", check_same_thread=False)
 conn.row_factory = sqlite3.Row
 connection = conn.cursor()
 
+
 # show all product
 @app.route("/home/category/<int:category_id>")
 def product(category_id):
@@ -124,6 +125,19 @@ def Totalprice():
     return list_price2
 
 
+def show_cart():
+    connection.execute(
+        """SELECT Products.product_id,Products.name,Products.description,Products.price,Products.picture,quantity
+                from Products
+                inner join cart
+                on cart.product_id = Products.product_id
+                where cart.customer_id = ?""",
+        (customer_information[0],),
+    )
+    carts = connection.fetchall()
+    return carts
+
+
 # View shopping cart
 @app.route("/cart/", methods=["POST", "GET"])
 def user_cart():
@@ -146,16 +160,8 @@ def user_cart():
                     (product_id,),
                 )
                 conn.commit()
-        connection.execute(
-            """SELECT Products.product_id,Products.name,Products.description,Products.price,Products.picture,quantity
-                from Products
-                inner join cart
-                on cart.product_id = Products.product_id
-                where cart.customer_id = ?""",
-            (customer_information[0],),
-        )
-        carts = connection.fetchall()
 
+        carts = show_cart()
         if len(carts) == 0:
             display = "d-none"
         else:

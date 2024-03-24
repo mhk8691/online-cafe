@@ -1,7 +1,68 @@
-{% extends "base.html" %}
-{% block head %}
+{% extends "base.html" %} {% block head %} {% endblock head %} {% block body %}
+<div class="d-flex justify-content-center mt-5">
+  <div class="col-lg-9">
+    <div class="border-2 border border-primary mb-3 rounded-1 p-3">
+      {% for i in product_list %}
+      <div class="col-md-12 col-lg-9 col-sm-12 col-sm-12">
+        <div class="card mb-3">
+          <div class="row g-0">
+            <div class="col-md-4">
+              <img
+                src="data:image/jpeg;base64,{{ i['picture'] }}"
+                class="w-100"
+                alt="img"
+              />
+            </div>
+            <div class="col-md-8">
+              <div class="card-header">
+                <h5 class="card-title">{{i['name']}}</h5>
+              </div>
+              <div class="card-body">
+                <p class="card-text mb-5">{{i['description']}}</p>
+              </div>
+              <div
+                class="card-footer d-flex justify-content-between align-items-center"
+              >
+                <div class="h-100">
+                  <h6 class="m-2 py-2 text-success">{{i['price']}} تومان</h6>
+                </div>
+                <div class="h-100">
+                  <input
+                    type="text"
+                    name=""
+                    value="{{i['quantity']}}"
+                    id=""
+                    readonly
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+      <hr class="mt-5" />
 
-{% endblock head %}
-{% block body %}
-<h1>hello</h1>
+      <div class="d-lg-flex justify-content-between align-items-center">
+        <div class=" ">
+          <h6 class="d-inline">تعداد کالا ها :</h6>
+          <h6 class="d-inline">{{list_price2[0]["quantity"]}}</h6>
+        </div>
+        <div class="mt-lg-0 mt-5 {{display}}">
+          <h6 class="d-inline">جمع سبد خرید :</h6>
+          <h6 class="d-inline">{{list_price2[0]["Totalprice"]}}</h6>
+        </div>
+        <div class="mt-lg-0 mt-5 {{display}}">
+          <a href="{{url_for('end_payment')}}" class="btn btn-success"
+            >پرداخت و تکمیل سفارش</a
+          >
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="bg">
+  <h3 class="h3">کافی شاپ</h3>
+  <div class="loader"></div>
+</div>
 {% endblock body %}
