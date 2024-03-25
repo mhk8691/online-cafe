@@ -1,14 +1,4 @@
-{% extends "base.html" %} {% block head %}
-<title>home</title>
-<link rel="stylesheet" href="../../static/css/style.css" />
-<link rel="stylesheet" href="../../static/css/bootstrap.rtl.min.css" />
-<link rel="stylesheet" href="../../static/css/ihover.min.css" />
-<link
-  rel="stylesheet"
-  href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
-/>
-
-{% endblock head %} {% block body %}
+{% extends "base.html" %} {% block head %} {% endblock head %} {% block body %}
 <nav class="navbar navbar-expand-lg bg-body-dark mt-2 mx-3">
   <div class="container-fluid d-flex align-items-center">
     <a class="navbar-brand d-none d-lg-block" href="#">کافی شاپ</a>
@@ -161,31 +151,44 @@
     </div>
   </div>
 </nav>
-<h5 class="mt-5 text-center border border-2 py-3 rounded-4 mx-5">
-  خرید بر اساس دسته بندی
-</h5>
-<div class="container mt-5 mt-5">
-  <div class="row gy-5">
-    {% for i in list %}
-    <div
-      class="col-xl-3 col-lg-4 col-md-6 col-sm-12 d-flex justify-content-center"
-    >
-      <div
-        class="ih-item square effect13 top_to_bottom h-100 animate__animated animate__bounceInUp"
-      >
-        <a href="/home/category/{{i['category_id']}}">
-          <div class="img w-100 h-100">
+<div class="d-flex justify-content-center mt-5">
+  <div class="col-lg-9">
+    {% for i in oreder_list2 %}
+    <div class="col-md-12 col-lg-9 col-sm-12 col-sm-12">
+      <div class="card mb-3">
+        <div class="row g-0">
+          <div class="col-md-4">
             <img
               src="data:image/jpeg;base64,{{ i['picture'] }}"
               class="w-100"
               alt="img"
             />
           </div>
-          <div class="info w-100 h-100">
-            <h3>{{i["name"]}}</h3>
-            <p>{{i["description"]}}</p>
-          </div></a
-        >
+          <div class="col-md-8">
+            <div class="card-header">
+              <h5 class="card-title">{{i['name']}}</h5>
+            </div>
+            <div class="card-body">
+              <p class="card-text mb-5">{{i['description']}}</p>
+            </div>
+            <div
+              class="card-footer d-flex justify-content-between align-items-center"
+            >
+              <div class="h-100">
+                <h6 class="m-2 py-2 text-success">{{i['price']}} تومان</h6>
+              </div>
+              <div class="h-100">
+                <input
+                  type="text"
+                  name=""
+                  value="{{i['quantity']}}"
+                  id=""
+                  readonly
+                />
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     {% endfor %}
@@ -195,5 +198,4 @@
   <h3 class="h3">کافی شاپ</h3>
   <div class="loader"></div>
 </div>
-<script src="../../static/js/script.js"></script>
 {% endblock body %}
