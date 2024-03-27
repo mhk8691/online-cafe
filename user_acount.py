@@ -2,6 +2,7 @@ from datetime import datetime
 from flask import Flask, redirect, url_for, request, render_template, jsonify
 import sqlite3
 import connect_db as connect_db
+import base64
 
 app = connect_db.app
 
@@ -135,3 +136,40 @@ def reset_password():
             conn.commit()
             return redirect(url_for("profile"))
     return render_template("pages/reset_password.html")
+
+
+@app.route("/order-history/")
+def order_history():
+
+    connection.execute(
+        """SELECT Products.product_id,Products.name,Products.description,Products.price,Products.picture ,Order_Details.quantity
+        FROM Order_Details 
+        INNER JOIN Products 
+        on Products.product_id = Order_Details.product_id
+        INNER JOIN Orders 
+        on Orders.order_id = Order_Details.order_id
+        INNER JOIN Customers 
+        on Customers.customer_id = Orders.customer_id
+        WHERE Orders.customer_id = ? 
+        
+        """,
+        (customer_information[0],),
+    )
+    oreder_list = connection.fetchall()
+    oreder_list2 = []
+    for order in oreder_list:
+        oreder_list2.append(
+            {
+                "product_id": order[0],
+                "name": order[1],
+                "description": order[2],
+                "price": order[3],
+                "picture": base64.b64encode(order[4]).decode("utf-8"),
+                "quantity": order[5],
+            }
+        )
+
+    return render_template(
+        "pages/order-history.html",
+        oreder_list2=oreder_list2,
+    )
