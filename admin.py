@@ -4,15 +4,14 @@ from flask_cors import CORS, cross_origin
 import connect_db as connect_db
 from datetime import datetime
 import os
-import json
 import base64
 import requests
-from werkzeug.utils import secure_filename
 
 app = connect_db.app
 
+
 cors = CORS(app)
-app.config["CORS_HEADERS"] = "Content-Type"
+app.config["UPLOAD_FOLDER"] = "static/img/"
 
 
 def get_db_connection():
@@ -154,16 +153,15 @@ def get_product(product_id):
     cur.execute("SELECT * FROM Products WHERE product_id = ?", (product_id,))
 
     product = cur.fetchone()
-
+    picture_base64 = base64.b64encode(product[4]).decode("utf-8")
     final_product = {
         "id": product[0],
         "name": product[1],
         "description": product[2],
         "price": product[3],
         "categories_id": product[4],
-        # "picture": product[4],
+        "picture": picture_base64,
     }
-    print(final_product["categories_id"])
 
     conn.close()
     return final_product
@@ -173,18 +171,20 @@ def get_product(product_id):
 def get_all_product(limit):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM Products LIMIT " + str(limit))
+    cur.execute("SELECT * FROM Products LIMIT '" + str(limit) + "' ")
     products = cur.fetchall()
     final_products = []
     for product in products:
+        picture_base64 = base64.b64encode(product[4]).decode("utf-8")
+
         final_products.append(
             {
                 "id": product[0],
                 "name": product[1],
                 "description": product[2],
                 "price": product[3],
+                "picture": picture_base64,
                 "categories_id": product[5],
-                # "picture": product[4],
             }
         )
     conn.close()
@@ -244,13 +244,9 @@ def add_product():
     description = request.json["description"]
     price = request.json["price"]
     categories_id = request.json["categories_id"]
+    file = request.json["pictures"]
 
-    picture = request.json["picture"]
-    # print(picture["src"])
-
-    product_id = create_product(
-        name, description, price, categories_id, "picture.read()"
-    )
+    product_id = create_product(name, description, price, categories_id, "filename")
     return jsonify(get_product(product_id)), 201
 
 
@@ -413,3 +409,204 @@ def delete_category_by_id(category_id):
 
 
 # ------------------ Categories Section end---------------
+
+
+# ------------------ Shipping Addresses Section start---------------
+# Get a shipping by ID
+def get_shipping(address_id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM Shipping_Addresses WHERE address_id = ?", (address_id,))
+
+    shipping = cur.fetchone()
+
+    final_shipping = {
+        "address_id": shipping[0],
+        # "customer_id": shipping[1],
+        "recipient_name": shipping[2],
+        "address_line1": shipping[3],
+        "address_line2": shipping[4],
+        "city": shipping[5],
+        "state": shipping[6],
+        "postal_code": shipping[7],
+        "country": shipping[8],
+    }
+
+    conn.close()
+    return final_shipping
+
+
+# Get all shipping
+def get_all_shipping(limit):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM Shipping_Addresses LIMIT " + str(limit))
+    shippings = cur.fetchall()
+    final_shipping = []
+    for shipping in shippings:
+        final_shipping.append(
+            {
+                "address_id": shipping[0],
+                # "customer_id": shipping[1],
+                "recipient_name": shipping[2],
+                "address_line1": shipping[3],
+                "address_line2": shipping[4],
+                "city": shipping[4],
+                "state": shipping[4],
+                "postal_code": shipping[4],
+                "country": shipping[4],
+            }
+        )
+    conn.close()
+    return final_shipping
+
+
+# Create a new shipping
+def create_shipping(
+    customer_id,
+    recipient_name,
+    address_line1,
+    address_line2,
+    city,
+    state,
+    postal_code,
+    country,
+):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute(
+        "INSERT INTO Shipping_Addresses (customer_id,recipient_name, address_line1,address_line2,city,state,postal_code,country) VALUES (?, ?, ?,?,?,?,?,?)",
+        (
+            customer_id,
+            recipient_name,
+            address_line1,
+            address_line2,
+            city,
+            state,
+            postal_code,
+            country,
+        ),
+    )
+    conn.commit()
+    address_id = cur.lastrowid
+    conn.close()
+    return address_id
+
+
+# Update a shipping
+def update_shipping(
+    customer_id,
+    recipient_name,
+    address_line1,
+    address_line2,
+    city,
+    state,
+    postal_code,
+    country,
+    address_id,
+):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute(
+        "UPDATE Shipping_Addresses SET customer_id = ?,recipient_name = ?, address_line1 = ?, address_line2 = ?, city = ?, state = ?, postal_code = ?, country = ? WHERE address_id = ?",
+        (
+            customer_id,
+            recipient_name,
+            address_line1,
+            address_line2,
+            city,
+            state,
+            postal_code,
+            country,
+            address_id,
+        ),
+    )
+    conn.commit()
+    conn.close()
+    return get_shipping(address_id)
+
+
+# Delete a shipping
+def delete_shipping(address_id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM Shipping_Addresses WHERE address_id = ?", (address_id,))
+    conn.commit()
+    conn.close()
+
+
+# CRUD routes
+@app.route("/shipping/", methods=["GET"])
+def list_shipping():
+    range = request.args.get("range")
+    shippings = get_all_shipping(int(range[3]) + 1)
+    response = jsonify(shippings)
+    response.headers["Access-Control-Expose-Headers"] = "Content-Range"
+    response.headers["Content-Range"] = len(shippings)
+    return response
+
+
+@app.route("/shipping", methods=["POST"])
+def add_shipping():
+    customer_id = request.json["customer_id"]
+    recipient_name = request.json["recipient_name"]
+    address_line1 = request.json["address_line1"]
+    address_line2 = request.json["address_line2"]
+    city = request.json["city"]
+    state = request.json["state"]
+    postal_code = request.json["postal_code"]
+    country = request.json["country"]
+
+    shipping_id = create_shipping(
+        customer_id,
+        recipient_name,
+        address_line1,
+        address_line2,
+        city,
+        state,
+        postal_code,
+        country,
+    )
+    return jsonify(get_shipping(shipping_id)), 201
+
+
+@app.route("/shipping/<int:address_id>", methods=["GET"])
+def get_shipping_by_id(address_id):
+    shipping = get_shipping(address_id)
+    if shipping is None:
+        return "", 404
+    return jsonify(shipping), 200
+
+
+@app.route("/shipping/<int:address_id>", methods=["PUT"])
+def update_shipping_by_id(address_id):
+    customer_id = request.json["customer_id"]
+    recipient_name = request.json["recipient_name"]
+    address_line1 = request.json["address_line1"]
+    address_line2 = request.json["address_line2"]
+    city = request.json["city"]
+    state = request.json["state"]
+    postal_code = request.json["postal_code"]
+    country = request.json["country"]
+
+    updated = update_shipping(
+        customer_id,
+        recipient_name,
+        address_line1,
+        address_line2,
+        city,
+        state,
+        postal_code,
+        country,
+        address_id,
+    )
+    return jsonify(updated), 200
+
+
+@app.route("/shipping/<int:address_id>", methods=["DELETE"])
+def delete_shipping_by_id(address_id):
+    delete_shipping(address_id)
+    return jsonify({"id": address_id}), 200
+
+
+# ------------------ Shipping Addresses Section end---------------

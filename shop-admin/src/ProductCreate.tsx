@@ -7,6 +7,7 @@ import {
   required,
   FileInput,
   ImageField,
+  ImageInput,
   SelectInput, // Assuming you have categories for selection
 } from "react-admin";
 
@@ -33,7 +34,9 @@ export const ProductCreate = () => (
           { id: 4, name: "Category 4" },
         ]}
       />
-      <FileInput source="picture" label="Picture" accept="image/*" fullWidth />
+      <ImageInput source="pictures" label="Related pictures">
+        <ImageField source="src" title="title" />
+      </ImageInput>
     </SimpleForm>
   </Create>
 );

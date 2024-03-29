@@ -15,7 +15,6 @@ import {
   ImageField,
 } from "react-admin";
 import { Stack } from "@mui/material";
-import { useEffect, useState } from "react";
 
 const CustomerFilters = [
   <SearchInput source="name" alwaysOn />,
@@ -30,27 +29,19 @@ const ListToolbar = () => (
     </div>
   </Stack>
 );
-
-export const ProductList = () => (
+export const ShippingList = () => (
   <List>
     <ListToolbar />
     <Datagrid rowClick="edit">
-      <NumberField source="id" />
-      <TextField source="name" />
-      <NumberField source="price" />
-      <TextField source="description" />
-      <TextField source="categories_id" />
-      <ImageField
-        source="picture"
-        sx={{
-          "& img": {
-            maxWidth: 100,
-            maxHeight: 100,
-            objectFit: "contain",
-          },
-          data: "data:image/jpeg;base64",
-        }}
-      />
+      <NumberField source="address_id" />
+      {/* <NumberField source="customer_id" /> */}
+      <TextField source="recipient_name" />
+      <TextField source="address_line1" />
+      <TextField source="address_line2" />
+      <TextField source="city" />
+      <TextField source="state" />
+      <TextField source="postal_code" />
+      <TextField source="country" />
     </Datagrid>
   </List>
 );
