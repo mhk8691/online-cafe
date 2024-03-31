@@ -12,7 +12,6 @@ import {
   EmailField,
   NumberField,
   DateField,
-  ImageField,
 } from "react-admin";
 import { Stack } from "@mui/material";
 
@@ -29,19 +28,15 @@ const ListToolbar = () => (
     </div>
   </Stack>
 );
-export const ShippingList = () => (
+export const UserList = () => (
   <List>
     <ListToolbar />
     <Datagrid rowClick="edit">
-      <NumberField source="address_id" />
-      <NumberField source="customer_id" />
-      <TextField source="recipient_name" />
-      <TextField source="address_line1" />
-      <TextField source="address_line2" />
-      <TextField source="city" />
-      <TextField source="state" />
-      <TextField source="postal_code" />
-      <TextField source="country" />
+      <NumberField source="user_id" />
+      <TextField source="username" />
+      <TextField source="password" />
+      <EmailField source="email" />
+      <TextField source="role" />
     </Datagrid>
   </List>
 );

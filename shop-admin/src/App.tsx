@@ -9,6 +9,8 @@ import { CategoriesList } from "./Categories";
 import { CategoriesCreate } from "./CategoriesCreate";
 import { ShippingList } from "./Shipping";
 import { ShippingCreate } from "./ShippingCreate";
+import { UserCreate } from "./UserCreate";
+import { UserList } from "./User";
 
 export const App = () => (
   <Admin dataProvider={dataProvider} authProvider={authProvider}>
@@ -39,6 +41,13 @@ export const App = () => (
       edit={EditGuesser}
       show={ShowGuesser}
       create={ShippingCreate}
+    />
+    <Resource
+      name="user"
+      list={UserList}
+      edit={EditGuesser}
+      show={ShowGuesser}
+      create={UserCreate}
     />
   </Admin>
 );

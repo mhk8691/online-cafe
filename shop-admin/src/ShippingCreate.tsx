@@ -6,23 +6,25 @@ import {
   DateInput,
   required,
   NumberInput,
+  SelectInput,
 } from "react-admin";
 
 export const ShippingCreate = () => (
   <Create>
     <SimpleForm>
-      <NumberInput
+      <SelectInput // Use SelectInput for category selection if applicable
         source="customer_id"
-        multiline={true}
         label="customer_id"
         fullWidth
+        choices={[
+          // Replace with your category options
+          { id: 8, name: "customer 1" },
+          { id: 9, name: "customer 2" },
+          { id: 18, name: "customer 3" },
+          { id: 20, name: "customer 4" },
+        ]}
       />
-      <TextInput
-        source="recipient_name"
-        multiline={true}
-        label="recipient_name"
-        fullWidth
-      />
+      <TextInput source="recipient_name" label="recipient_name" fullWidth />
       <TextInput source="address_line1" fullWidth label="address_line1" />
       <TextInput source="address_line2" fullWidth label="address_line2" />
       <TextInput source="city" fullWidth label="city" />

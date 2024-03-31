@@ -53,9 +53,43 @@
           <h6 class="d-inline">{{list_price2[0]["Totalprice"]}}</h6>
         </div>
         <div class="mt-lg-0 mt-5 {{display}}">
-          <a href="{{url_for('end_payment')}}" class="btn btn-success"
+          <a href="#method" data-bs-toggle="modal" class="btn btn-success"
             >پرداخت و تکمیل سفارش</a
           >
+        </div>
+        <div class="modal fade" id="method" tabindex="-1">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">
+                  انتخاب روش پرداخت
+                </h1>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div class="modal-body">
+                <p>لطفا روش پرداخت را انتخاب کنید</p>
+              </div>
+              <div class="modal-footer">
+                <a
+                  href="http://localhost:5000/end-payment/person/"
+                  type="button"
+                  class="btn btn-outline-primary"
+                  >پرداخت حضوری</a
+                >
+                <a
+                  href="http://localhost:5000/end-payment/online/"
+                  type="button"
+                  class="btn btn-primary"
+                  >پرداخت آنلاین</a
+                >
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

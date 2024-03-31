@@ -119,8 +119,19 @@ def checkout():
 show_cart = product.show_cart
 
 
-@app.route("/end-payment/")
-def end_payment():
+def delete_cart():
+    connection.execute(
+        """
+    DELETE FROM cart
+    WHERE customer_id = :customer_id
+    """,
+        {"customer_id": int(customer_information[0])},
+    )
+    conn.commit()
+
+
+@app.route("/end-payment/<string:payment_method>/")
+def end_payment(payment_method):
     time = datetime.today().strftime("%Y-%m-%d")
     connection.execute(
         """
@@ -132,7 +143,6 @@ def end_payment():
         (int(customer_information[0]),),
     )
     quantity = connection.fetchone()
-
     for q in quantity:
         quantity2 = q
 
@@ -184,11 +194,23 @@ def end_payment():
 
     connection.execute(
         """
-    DELETE FROM cart
-    WHERE customer_id = :customer_id
+    SELECT MAX(order_id)
+    FROM Orders
+    
+    WHERE Orders.customer_id = ?
     """,
-        {"customer_id": int(customer_information[0])},
+        (int(customer_information[0]),),
     )
+    if payment_method != "online" or payment_method != "person":
+        return redirect(url_for("home"))
+    order_id_payment = connection.fetchone()
+    for o in order_id_payment:
+        order_id_payment2 = o
+    connection.execute(
+        "INSERT INTO Payments (order_id,payment_method,amount,payment_date) VALUES (?,?,?,?)",
+        (order_id_payment2, payment_method, quantity2, time),
+    )
+    delete_cart()
     conn.commit()
 
     return render_template("pages/end-payment.html")

@@ -153,14 +153,21 @@ def get_product(product_id):
     cur.execute("SELECT * FROM Products WHERE product_id = ?", (product_id,))
 
     product = cur.fetchone()
-    picture_base64 = base64.b64encode(product[4]).decode("utf-8")
+    # picture_base64 = base64.b64encode(product[4]).decode("utf-8")
+    test = product[4]
+    print(test)
+    cur.execute(
+        "SELECT Categories.name FROM Categories inner join Products on Categories.category_id = Products.category_id where Products.category_id = ?",
+        (test,),
+    )
+    t = cur.fetchone()
     final_product = {
         "id": product[0],
         "name": product[1],
         "description": product[2],
         "price": product[3],
-        "categories_id": product[4],
-        "picture": picture_base64,
+        "categories_id": t[0],
+        # "picture": picture_base64,
     }
 
     conn.close()
@@ -175,7 +182,7 @@ def get_all_product(limit):
     products = cur.fetchall()
     final_products = []
     for product in products:
-        picture_base64 = base64.b64encode(product[4]).decode("utf-8")
+        # picture_base64 = base64.b64encode(product[4]).decode("utf-8")
 
         final_products.append(
             {
@@ -183,7 +190,7 @@ def get_all_product(limit):
                 "name": product[1],
                 "description": product[2],
                 "price": product[3],
-                "picture": picture_base64,
+                # "picture": picture_base64,
                 "categories_id": product[5],
             }
         )
@@ -422,7 +429,7 @@ def get_shipping(address_id):
 
     final_shipping = {
         "address_id": shipping[0],
-        # "customer_id": shipping[1],
+        "customer_id": shipping[1],
         "recipient_name": shipping[2],
         "address_line1": shipping[3],
         "address_line2": shipping[4],
@@ -447,7 +454,7 @@ def get_all_shipping(limit):
         final_shipping.append(
             {
                 "address_id": shipping[0],
-                # "customer_id": shipping[1],
+                "customer_id": shipping[1],
                 "recipient_name": shipping[2],
                 "address_line1": shipping[3],
                 "address_line2": shipping[4],
@@ -610,3 +617,160 @@ def delete_shipping_by_id(address_id):
 
 
 # ------------------ Shipping Addresses Section end---------------
+
+
+# Get a user by ID
+def get_user(user_id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM Users WHERE user_id = ?", (user_id,))
+
+    user = cur.fetchone()
+
+    final_user = {
+        "user_id": user[0],
+        "username": user[1],
+        "password": user[2],
+        "email": user[3],
+        "role": user[4],
+    }
+
+    conn.close()
+    return final_user
+
+
+# Get all user
+def get_all_user(limit):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM Users LIMIT " + str(limit))
+    users = cur.fetchall()
+    final_users = []
+    for user in users:
+        final_users.append(
+            {
+                "user_id": user[0],
+                "username": user[1],
+                "password": user[2],
+                "email": user[3],
+                "role": user[4],
+            }
+        )
+    conn.close()
+    return final_users
+
+
+# Create a new user
+def create_user(
+    username,
+    password,
+    email,
+    role,
+):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute(
+        "INSERT INTO Users (username,password, email,role) VALUES (?, ?, ?,?)",
+        (
+            username,
+            password,
+            email,
+            role,
+        ),
+    )
+    conn.commit()
+    user_id = cur.lastrowid
+    conn.close()
+    return user_id
+
+
+# Update a user
+def update_user(
+    username,
+    password,
+    email,
+    role,
+    user_id,
+):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute(
+        "UPDATE Users SET username = ?,password = ?, email = ?, role = ? WHERE user_id = ?",
+        (
+            username,
+            password,
+            email,
+            role,
+            user_id,
+        ),
+    )
+    conn.commit()
+    conn.close()
+    return get_user(user_id)
+
+
+# Delete a user
+def delete_user(user_id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM Users WHERE user_id = ?", (user_id,))
+    conn.commit()
+    conn.close()
+
+
+# CRUD routes
+@app.route("/user/", methods=["GET"])
+def list_user():
+    range = request.args.get("range")
+    users = get_all_user(int(range[3]) + 1)
+    response = jsonify(users)
+    response.headers["Access-Control-Expose-Headers"] = "Content-Range"
+    response.headers["Content-Range"] = len(users)
+    return response
+
+
+@app.route("/user", methods=["POST"])
+def add_user():
+    username = request.json["username"]
+    password = request.json["password"]
+    email = request.json["email"]
+    role = request.json["role"]
+
+    userlist = create_user(
+        username,
+        password,
+        email,
+        role,
+    )
+    return jsonify(get_user(userlist)), 201
+
+
+@app.route("/user/<int:user_id>", methods=["GET"])
+def get_user_by_id(user_id):
+    user = get_user(user_id)
+    if user is None:
+        return "", 404
+    return jsonify(user), 200
+
+
+@app.route("/user/<int:user_id>", methods=["PUT"])
+def update_user_by_id(user_id):
+    username = request.json["username"]
+    password = request.json["password"]
+    email = request.json["email"]
+    role = request.json["role"]
+
+    updated = update_user(
+        username,
+        password,
+        email,
+        role,
+        user_id,
+    )
+    return jsonify(updated), 200
+
+
+@app.route("/user/<int:user_id>", methods=["DELETE"])
+def delete_user_by_id(user_id):
+    delete_user(user_id)
+    return jsonify({"id": user_id}), 200
