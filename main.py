@@ -148,7 +148,7 @@ def end_payment(payment_method):
 
     connection.execute(
         "INSERT INTO Orders (customer_id,order_date,total_amount,status) VALUES (?,?,?,?)",
-        (int(customer_information[0]), time, quantity2, "test"),
+        (int(customer_information[0]), time, quantity2, "waiting"),
     )
 
     product_list = []
@@ -168,32 +168,6 @@ def end_payment(payment_method):
 
     connection.execute(
         """
-    SELECT order_id
-    FROM Orders
-    
-    WHERE Orders.customer_id = ?
-    """,
-        (int(customer_information[0]),),
-    )
-    order_id = connection.fetchone()
-
-    for o in order_id:
-        order_id2 = o
-
-    for product_list2 in range(len(product_list)):
-
-        connection.execute(
-            "INSERT INTO Order_Details (order_id,product_id,quantity,unit_price) VALUES (?,?,?,?)",
-            (
-                order_id2,
-                product_list[product_list2]["product_id"],
-                product_list[product_list2]["quantity"],
-                product_list[product_list2]["price"],
-            ),
-        )
-
-    connection.execute(
-        """
     SELECT MAX(order_id)
     FROM Orders
     
@@ -201,11 +175,23 @@ def end_payment(payment_method):
     """,
         (int(customer_information[0]),),
     )
-    if payment_method != "online" or payment_method != "person":
-        return redirect(url_for("home"))
+
     order_id_payment = connection.fetchone()
     for o in order_id_payment:
         order_id_payment2 = o
+
+    for product_list2 in range(len(product_list)):
+
+        connection.execute(
+            "INSERT INTO Order_Details (order_id,product_id,quantity,unit_price) VALUES (?,?,?,?)",
+            (
+                order_id_payment2,
+                product_list[product_list2]["product_id"],
+                product_list[product_list2]["quantity"],
+                product_list[product_list2]["price"],
+            ),
+        )
+
     connection.execute(
         "INSERT INTO Payments (order_id,payment_method,amount,payment_date) VALUES (?,?,?,?)",
         (order_id_payment2, payment_method, quantity2, time),
