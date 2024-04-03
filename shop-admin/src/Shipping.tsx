@@ -33,8 +33,8 @@ export const ShippingList = () => (
   <List>
     <ListToolbar />
     <Datagrid rowClick="edit">
-      <NumberField source="address_id" />
-      <NumberField source="customer_id" />
+      <TextField source="id" />
+      <TextField source="customer_id" />
       <TextField source="recipient_name" />
       <TextField source="address_line1" />
       <TextField source="address_line2" />

@@ -428,7 +428,7 @@ def get_shipping(address_id):
     shipping = cur.fetchone()
 
     final_shipping = {
-        "address_id": shipping[0],
+        "id": shipping[0],
         "customer_id": shipping[1],
         "recipient_name": shipping[2],
         "address_line1": shipping[3],
@@ -453,15 +453,15 @@ def get_all_shipping(limit):
     for shipping in shippings:
         final_shipping.append(
             {
-                "address_id": shipping[0],
+                "id": shipping[0],
                 "customer_id": shipping[1],
                 "recipient_name": shipping[2],
                 "address_line1": shipping[3],
                 "address_line2": shipping[4],
-                "city": shipping[4],
-                "state": shipping[4],
-                "postal_code": shipping[4],
-                "country": shipping[4],
+                "city": shipping[5],
+                "state": shipping[6],
+                "postal_code": shipping[7],
+                "country": shipping[8],
             }
         )
     conn.close()
@@ -628,7 +628,7 @@ def get_user(user_id):
     user = cur.fetchone()
 
     final_user = {
-        "user_id": user[0],
+        "id": user[0],
         "username": user[1],
         "password": user[2],
         "email": user[3],
@@ -649,7 +649,7 @@ def get_all_user(limit):
     for user in users:
         final_users.append(
             {
-                "user_id": user[0],
+                "id": user[0],
                 "username": user[1],
                 "password": user[2],
                 "email": user[3],

@@ -38,7 +38,11 @@ def home():
                 }
             )
 
-        return render_template("pages/index.html", list=list, len=len(list))
+        return render_template(
+            "pages/index.html",
+            list=list,
+            len=len(list),
+        )
 
 
 def Totalprice():

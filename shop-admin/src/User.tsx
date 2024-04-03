@@ -32,7 +32,7 @@ export const UserList = () => (
   <List>
     <ListToolbar />
     <Datagrid rowClick="edit">
-      <NumberField source="user_id" />
+      <TextField source="id" />
       <TextField source="username" />
       <TextField source="password" />
       <EmailField source="email" />
