@@ -70,6 +70,9 @@ def delete_customer(customer_id):
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute("DELETE FROM customers WHERE customer_id = ?", (customer_id,))
+    cur.execute("DELETE FROM Shipping_Addresses WHERE customer_id = ?", (customer_id,))
+    cur.execute("DELETE FROM Feedback WHERE customer_id = ?", (customer_id,))
+    cur.execute("DELETE FROM cart WHERE customer_id = ?", (customer_id,))
     conn.commit()
     conn.close()
 
@@ -230,6 +233,7 @@ def delete_product(product_id):
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute("DELETE FROM products WHERE product_id = ?", (product_id,))
+    cur.execute("DELETE FROM cart WHERE product_id = ?", (product_id,))
     conn.commit()
     conn.close()
 
@@ -361,6 +365,7 @@ def delete_category(category_id):
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute("DELETE FROM Categories WHERE category_id = ?", (category_id,))
+    cur.execute("DELETE FROM Products WHERE categories_id = ?", (category_id,))
     conn.commit()
     conn.close()
 
@@ -774,3 +779,134 @@ def update_user_by_id(user_id):
 def delete_user_by_id(user_id):
     delete_user(user_id)
     return jsonify({"id": user_id}), 200
+
+
+# -------------------------- order -----------------------
+
+
+# Get a user by ID
+def get_order(order_id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute(
+        """SELECT order_id,order_date,Customers.username,total_amount,status FROM Orders INNER JOIN Customers
+        ON Customers.customer_id = Orders.customer_id  WHERE order_id = ?""",
+        (order_id,),
+    )
+
+    order = cur.fetchone()
+
+    final_order = {
+        "id": order[0],
+        "username": order[1],
+        "order_date": order[2],
+        "total_amount": order[3],
+        "status": order[4],
+    }
+
+    conn.close()
+    return final_order
+
+
+# Get all order
+def get_all_order(limit):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute(
+        """SELECT 
+        order_id,Customers.username,order_date,total_amount,status
+        FROM Orders
+        INNER JOIN Customers
+        ON Customers.customer_id = Orders.customer_id 
+        
+        LIMIT """
+        + str(limit)
+    )
+    orders = cur.fetchall()
+    final_orders = []
+    for order in orders:
+        cur.execute(
+            """SELECT SUM(Order_Details.quantity)
+            FROM Order_Details
+            INNER JOIN Orders
+            ON Orders.order_id = Order_Details.order_id
+            WHERE Orders.order_id = ?
+            """,
+            (order[0],),
+        )
+        test = cur.fetchone()
+        for t in test:
+
+            final_orders.append(
+                {
+                    "id": order[0],
+                    "username": order[1],
+                    "order_date": order[2],
+                    "total_amount": order[3],
+                    "status": order[4],
+                    "quantity": t,
+                }
+            )
+    conn.close()
+    return final_orders
+
+
+# Update a user
+def update_order(order_date, total_amount, status, order_id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute(
+        "UPDATE Orders SET order_date = ?,total_amount = ?, status = ? WHERE order_id = ?",
+        (order_date, total_amount, status, order_id),
+    )
+    conn.commit()
+    conn.close()
+    return get_order(order_id)
+
+
+# Delete a user
+def delete_order(order_id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM Orders WHERE order_id = ?", (order_id,))
+    cur.execute(
+        "DELETE FROM Order_Details WHERE Order_Details.order_id = ?", (order_id,)
+    )
+    cur.execute("DELETE FROM Payments WHERE Payments.order_id = ?", (order_id,))
+    conn.commit()
+    conn.close()
+
+
+@app.route("/orders/", methods=["GET"])
+def list_order():
+    range = request.args.get("range")
+    orders = get_all_order(int(range[3]) + 1)
+    response = jsonify(orders)
+    response.headers["Access-Control-Expose-Headers"] = "Content-Range"
+    response.headers["Content-Range"] = len(orders)
+    return response
+
+
+@app.route("/orders", methods=["POST"])
+@app.route("/orders/<int:order_id>", methods=["GET"])
+def get_order_by_id(order_id):
+    order = get_order(order_id)
+    if order is None:
+        return "", 404
+    return jsonify(order), 200
+
+
+@app.route("/orders/<int:order_id>", methods=["PUT"])
+def update_order_by_id(order_id):
+    order_date = request.json["order_date"]
+    total_amount = request.json["total_amount"]
+    status = request.json["status"]
+
+    updated = update_order(order_date, total_amount, status, order_id)
+    return jsonify(updated), 200
+
+
+@app.route("/orders/<int:order_id>", methods=["DELETE"])
+def delete_order_by_id(order_id):
+    delete_order(order_id)
+    return jsonify({"id": order_id}), 200
