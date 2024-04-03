@@ -34,6 +34,7 @@ export const ProductCreate = () => (
           { id: 4, name: "Category 4" },
         ]}
       />
+
       <ImageInput source="pictures" label="Related pictures">
         <ImageField source="src" title="title" />
       </ImageInput>

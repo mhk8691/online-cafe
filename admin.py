@@ -157,19 +157,20 @@ def get_product(product_id):
 
     product = cur.fetchone()
     # picture_base64 = base64.b64encode(product[4]).decode("utf-8")
-    test = product[4]
-    print(test)
+
     cur.execute(
-        "SELECT Categories.name FROM Categories inner join Products on Categories.category_id = Products.category_id where Products.category_id = ?",
-        (test,),
+        "SELECT Categories.name FROM Categories WHERE category_id = ?",
+        (product[5],),
     )
-    t = cur.fetchone()
+    name = cur.fetchone()
+    for name2 in name:
+        category_name = name2
     final_product = {
         "id": product[0],
         "name": product[1],
         "description": product[2],
         "price": product[3],
-        "categories_id": t[0],
+        "categories_name": category_name,
         # "picture": picture_base64,
     }
 
@@ -186,25 +187,33 @@ def get_all_product(limit):
     final_products = []
     for product in products:
         # picture_base64 = base64.b64encode(product[4]).decode("utf-8")
-
-        final_products.append(
-            {
-                "id": product[0],
-                "name": product[1],
-                "description": product[2],
-                "price": product[3],
-                # "picture": picture_base64,
-                "categories_id": product[5],
-            }
+        cur.execute(
+            "SELECT Categories.name FROM Categories WHERE category_id = ?",
+            (product[5],),
         )
+        name = cur.fetchone()
+        for name2 in name:
+
+            final_products.append(
+                {
+                    "id": product[0],
+                    "name": product[1],
+                    "description": product[2],
+                    "price": product[3],
+                    # "picture": picture_base64,
+                    "categories_name": name2,
+                }
+            )
     conn.close()
     return final_products
 
 
 # Create a new product
 def create_product(name, description, price, categories_id, picture):
+
     conn = get_db_connection()
     cur = conn.cursor()
+
     cur.execute(
         "INSERT INTO Products (name,description, price,categories_id,picture) VALUES (?, ?, ?,?,?)",
         (name, description, price, categories_id, picture),
@@ -259,6 +268,19 @@ def add_product():
 
     product_id = create_product(name, description, price, categories_id, "filename")
     return jsonify(get_product(product_id)), 201
+
+
+# @app.route("/product/create/")
+# def test():
+#     conn = get_db_connection()
+#     cur = conn.cursor()
+#     cur.execute("SELECT category_id,name FROM Categories")
+#     category_list = cur.fetchall()
+#     category_list2 = []
+#     for cat in category_list:
+#         category_list2.append({"id": cat[0], "name": cat[1]})
+
+#     return category_list2
 
 
 @app.route("/product/<int:product_id>", methods=["GET"])
@@ -431,18 +453,23 @@ def get_shipping(address_id):
     cur.execute("SELECT * FROM Shipping_Addresses WHERE address_id = ?", (address_id,))
 
     shipping = cur.fetchone()
+    cur.execute(
+        "SELECT Customers.username FROM Customers WHERE customer_id = ?", (shipping[1],)
+    )
+    username = cur.fetchone()
+    for username2 in username:
 
-    final_shipping = {
-        "id": shipping[0],
-        "customer_id": shipping[1],
-        "recipient_name": shipping[2],
-        "address_line1": shipping[3],
-        "address_line2": shipping[4],
-        "city": shipping[5],
-        "state": shipping[6],
-        "postal_code": shipping[7],
-        "country": shipping[8],
-    }
+        final_shipping = {
+            "id": shipping[0],
+            "customer_name": username2,
+            "recipient_name": shipping[2],
+            "address_line1": shipping[3],
+            "address_line2": shipping[4],
+            "city": shipping[5],
+            "state": shipping[6],
+            "postal_code": shipping[7],
+            "country": shipping[8],
+        }
 
     conn.close()
     return final_shipping
@@ -456,19 +483,26 @@ def get_all_shipping(limit):
     shippings = cur.fetchall()
     final_shipping = []
     for shipping in shippings:
-        final_shipping.append(
-            {
-                "id": shipping[0],
-                "customer_id": shipping[1],
-                "recipient_name": shipping[2],
-                "address_line1": shipping[3],
-                "address_line2": shipping[4],
-                "city": shipping[5],
-                "state": shipping[6],
-                "postal_code": shipping[7],
-                "country": shipping[8],
-            }
+        cur.execute(
+            "SELECT Customers.username FROM Customers WHERE customer_id = ?",
+            (shipping[1],),
         )
+        username = cur.fetchone()
+        for username2 in username:
+
+            final_shipping.append(
+                {
+                    "id": shipping[0],
+                    "customer_name": username2,
+                    "recipient_name": shipping[2],
+                    "address_line1": shipping[3],
+                    "address_line2": shipping[4],
+                    "city": shipping[5],
+                    "state": shipping[6],
+                    "postal_code": shipping[7],
+                    "country": shipping[8],
+                }
+            )
     conn.close()
     return final_shipping
 
@@ -910,3 +944,6 @@ def update_order_by_id(order_id):
 def delete_order_by_id(order_id):
     delete_order(order_id)
     return jsonify({"id": order_id}), 200
+
+
+# -------------------------- order end -----------------------

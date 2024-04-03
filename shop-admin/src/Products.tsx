@@ -39,7 +39,7 @@ export const ProductList = () => (
       <TextField source="name" />
       <NumberField source="price" />
       <TextField source="description" />
-      <TextField source="categories_id" />
+      <TextField source="categories_name" />
       <ImageField
         source="picture"
         sx={{

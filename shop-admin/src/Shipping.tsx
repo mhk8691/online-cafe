@@ -34,7 +34,7 @@ export const ShippingList = () => (
     <ListToolbar />
     <Datagrid rowClick="edit">
       <TextField source="id" />
-      <TextField source="customer_id" />
+      <TextField source="customer_name" />
       <TextField source="recipient_name" />
       <TextField source="address_line1" />
       <TextField source="address_line2" />
