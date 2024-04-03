@@ -225,12 +225,12 @@ def create_product(name, description, price, categories_id, picture):
 
 
 # Update a product
-def update_product(product_id, name, description, price, categories_id):
+def update_product(product_id, name, description, price, categories_id, category_name):
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute(
-        "UPDATE products SET name = ?,description = ?, price = ?,categories_id = ? WHERE product_id = ?",
-        (name, description, price, categories_id, product_id),
+        "UPDATE products SET name = ?,description = ?, price = ?,categories_id = ? WHERE product_id = ? AND category_name = ?",
+        (name, description, price, categories_id, product_id, category_name),
     )
     conn.commit()
     conn.close()
@@ -297,8 +297,11 @@ def update_product_by_id(product_id):
     description = request.json["description"]
     price = request.json["price"]
     categories_id = request.json["categories_id"]
+    category_name = request.json["categories_name"]
 
-    updated = update_product(product_id, name, description, price, categories_id)
+    updated = update_product(
+        product_id, name, description, price, categories_id, category_name
+    )
     return jsonify(updated), 200
 
 
@@ -541,7 +544,6 @@ def create_shipping(
 
 # Update a shipping
 def update_shipping(
-    customer_id,
     recipient_name,
     address_line1,
     address_line2,
@@ -554,9 +556,11 @@ def update_shipping(
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute(
-        "UPDATE Shipping_Addresses SET customer_id = ?,recipient_name = ?, address_line1 = ?, address_line2 = ?, city = ?, state = ?, postal_code = ?, country = ? WHERE address_id = ?",
+        """UPDATE 
+        Shipping_Addresses SET 
+        recipient_name = ?, address_line1 = ?, address_line2 = ?, city = ?, state = ?, postal_code = ?, country = ?
+        WHERE address_id = ?""",
         (
-            customer_id,
             recipient_name,
             address_line1,
             address_line2,
@@ -626,7 +630,6 @@ def get_shipping_by_id(address_id):
 
 @app.route("/shipping/<int:address_id>", methods=["PUT"])
 def update_shipping_by_id(address_id):
-    customer_id = request.json["customer_id"]
     recipient_name = request.json["recipient_name"]
     address_line1 = request.json["address_line1"]
     address_line2 = request.json["address_line2"]
@@ -636,7 +639,6 @@ def update_shipping_by_id(address_id):
     country = request.json["country"]
 
     updated = update_shipping(
-        customer_id,
         recipient_name,
         address_line1,
         address_line2,
@@ -947,3 +949,68 @@ def delete_order_by_id(order_id):
 
 
 # -------------------------- order end -----------------------
+
+
+# ------------------------------- payment start ------------------
+
+
+# Get a product by ID
+def get_payment(payment_id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM Payments WHERE payment_id = ?", (payment_id,))
+
+    payment = cur.fetchone()
+
+    final_paymnet = {
+        "id": payment[0],
+        "order_id": payment[1],
+        "payment_method": payment[2],
+        "amount": payment[3],
+        "payment_date": payment[4],
+        # "picture": category[5],
+    }
+
+    conn.close()
+    return final_paymnet
+
+
+# Get all products
+def get_all_payment(limit):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM Payments LIMIT " + str(limit))
+    payments = cur.fetchall()
+    final_payments = []
+    for payment in payments:
+        final_payments.append(
+            {
+                "id": payment[0],
+                "order_id": payment[1],
+                "payment_method": payment[2],
+                "amount": payment[3],
+                "payment_date": payment[4],
+                # "picture": category[5],
+            }
+        )
+    conn.close()
+    return final_payments
+
+
+@app.route("/payment/", methods=["GET"])
+def list_payment():
+    range = request.args.get("range")
+    payment = get_all_payment(int(range[3]) + 1)
+    response = jsonify(payment)
+    response.headers["Access-Control-Expose-Headers"] = "Content-Range"
+    response.headers["Content-Range"] = len(payment)
+    return response
+
+
+@app.route("/payment", methods=["POST"])
+@app.route("/payment/<int:order_id>", methods=["GET"])
+def get_payment_by_id(order_id):
+    payment = get_payment(order_id)
+    if payment is None:
+        return "", 404
+    return jsonify(payment), 200
