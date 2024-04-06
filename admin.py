@@ -159,9 +159,10 @@ def get_product(product_id):
     # picture_base64 = base64.b64encode(product[4]).decode("utf-8")
 
     cur.execute(
-        "SELECT Categories.name FROM Categories WHERE category_id = ?",
+        "SELECT Categories.name FROM Products INNER JOIN Categories ON Products.categories_id = Categories.category_id WHERE category_id = ?",
         (product[5],),
     )
+    
     name = cur.fetchone()
     for name2 in name:
         category_name = name2
@@ -266,21 +267,9 @@ def add_product():
     categories_id = request.json["categories_id"]
     file = request.json["pictures"]
     print(file)
+
     product_id = create_product(name, description, price, categories_id, "filename")
     return jsonify(get_product(product_id)), 201
-
-
-# @app.route("/product/create/")
-def test():
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute("SELECT category_id,name FROM Categories")
-    category_list = cur.fetchall()
-    category_list2 = []
-    for cat in category_list:
-        category_list2.append({"id": cat[0], "name": cat[1]})
-
-    return category_list2
 
 
 @app.route("/product/<int:product_id>", methods=["GET"])
@@ -1086,7 +1075,7 @@ def get_payment_by_id(order_id):
 def get_all_order_details(limit):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT *  FROM Order_Details LIMIT " + str(limit))
+    cur.execute("SELECT *  FROM Order_Details  LIMIT " + str(limit))
     Order_Details = cur.fetchall()
     final_Order_Details = []
     for order_detail in Order_Details:
@@ -1096,16 +1085,21 @@ def get_all_order_details(limit):
         )
         product_name = cur.fetchall()
         for product in product_name:
-
-            final_Order_Details.append(
-                {
-                    "id": order_detail[0],
-                    "order_id": order_detail[1],
-                    "product_name": product[0],
-                    "quantity": order_detail[3],
-                    "unit_price": order_detail[4],
-                }
+            cur.execute(
+                "SELECT Customers.username FROM Customers INNER JOIN Orders on Customers.customer_id = Orders.customer_id WHERE order_id = ?",(order_detail[1],)
             )
+            username = cur.fetchone()
+            for name in username:
+                final_Order_Details.append(
+                    {
+                        "id": order_detail[0],
+                        "order_id": order_detail[1],
+                        "username" : name,
+                        "product_name": product[0],
+                        "quantity": order_detail[3],
+                        "unit_price": order_detail[4],
+                    }
+                )
     conn.close()
     return final_Order_Details
 

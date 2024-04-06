@@ -36,6 +36,7 @@ export const OrderDetailsList = () => (
     <Datagrid>
       <TextField source="id" />
       <TextField source="order_id" />
+      <TextField source="username" />
       <TextField source="product_name" />
       <NumberField source="quantity" />
       <NumberField source="unit_price" />
