@@ -225,12 +225,12 @@ def create_product(name, description, price, categories_id, picture):
 
 
 # Update a product
-def update_product(product_id, name, description, price, categories_id, category_name):
+def update_product(name, description, price, product_id):
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute(
-        "UPDATE products SET name = ?,description = ?, price = ?,categories_id = ? WHERE product_id = ? AND category_name = ?",
-        (name, description, price, categories_id, product_id, category_name),
+        "UPDATE products SET name = ?,description = ?, price = ? WHERE product_id = ?",
+        (name, description, price, product_id),
     )
     conn.commit()
     conn.close()
@@ -265,22 +265,22 @@ def add_product():
     price = request.json["price"]
     categories_id = request.json["categories_id"]
     file = request.json["pictures"]
-
+    print(file)
     product_id = create_product(name, description, price, categories_id, "filename")
     return jsonify(get_product(product_id)), 201
 
 
 # @app.route("/product/create/")
-# def test():
-#     conn = get_db_connection()
-#     cur = conn.cursor()
-#     cur.execute("SELECT category_id,name FROM Categories")
-#     category_list = cur.fetchall()
-#     category_list2 = []
-#     for cat in category_list:
-#         category_list2.append({"id": cat[0], "name": cat[1]})
+def test():
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT category_id,name FROM Categories")
+    category_list = cur.fetchall()
+    category_list2 = []
+    for cat in category_list:
+        category_list2.append({"id": cat[0], "name": cat[1]})
 
-#     return category_list2
+    return category_list2
 
 
 @app.route("/product/<int:product_id>", methods=["GET"])
@@ -296,12 +296,10 @@ def update_product_by_id(product_id):
     name = request.json["name"]
     description = request.json["description"]
     price = request.json["price"]
-    categories_id = request.json["categories_id"]
-    category_name = request.json["categories_name"]
+    # categories_id = request.json["categories_id"]
+    # category_name = request.json["categories_name"]
 
-    updated = update_product(
-        product_id, name, description, price, categories_id, category_name
-    )
+    updated = update_product(name, description, price, product_id)
     return jsonify(updated), 200
 
 
@@ -825,23 +823,46 @@ def get_order(order_id):
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute(
-        """SELECT order_id,order_date,Customers.username,total_amount,status FROM Orders INNER JOIN Customers
-        ON Customers.customer_id = Orders.customer_id  WHERE order_id = ?""",
+        """SELECT order_id,Customers.username,order_date,total_amount,status
+        FROM Orders
+        INNER JOIN Customers
+         ON Customers.customer_id = Orders.customer_id
+          WHERE order_id = ?""",
         (order_id,),
     )
 
     order = cur.fetchone()
+    cur.execute(
+        "SELECT SUM(Order_Details.quantity) FROM Order_Details INNER JOIN Orders ON Order_Details.order_id =Orders.order_id  WHERE Order_Details.order_id = ?",
+        (order[0],),
+    )
+    quantity = cur.fetchone()
+    for q in quantity:
 
-    final_order = {
-        "id": order[0],
-        "username": order[1],
-        "order_date": order[2],
-        "total_amount": order[3],
-        "status": order[4],
-    }
-
+        final_order = {
+            "id": order[0],
+            "username": order[1],
+            "order_date": order[2],
+            "total_amount": order[3],
+            "status": order[4],
+            "quantity": q,
+        }
     conn.close()
     return final_order
+
+
+def customer_id(order_id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute(
+        """SELECT Orders.customer_id
+        FROM Orders
+        
+          WHERE order_id = ?""",
+        (order_id,),
+    )
+    customer_id = cur.fetchone()[0]
+    return customer_id
 
 
 # Get all order
@@ -849,11 +870,10 @@ def get_all_order(limit):
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute(
-        """SELECT 
-        order_id,Customers.username,order_date,total_amount,status
+        """SELECT order_id,Customers.username,order_date,total_amount,status
         FROM Orders
         INNER JOIN Customers
-        ON Customers.customer_id = Orders.customer_id 
+         ON Customers.customer_id = Orders.customer_id
         
         LIMIT """
         + str(limit)
@@ -870,8 +890,8 @@ def get_all_order(limit):
             """,
             (order[0],),
         )
-        test = cur.fetchone()
-        for t in test:
+        quantity = cur.fetchone()
+        for q in quantity:
 
             final_orders.append(
                 {
@@ -880,21 +900,46 @@ def get_all_order(limit):
                     "order_date": order[2],
                     "total_amount": order[3],
                     "status": order[4],
-                    "quantity": t,
+                    "quantity": q,
                 }
             )
     conn.close()
     return final_orders
 
 
-# Update a user
-def update_order(order_date, total_amount, status, order_id):
+def notification(
+    customer_id,
+    message,
+    created_at,
+    status_notification,
+):
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute(
-        "UPDATE Orders SET order_date = ?,total_amount = ?, status = ? WHERE order_id = ?",
-        (order_date, total_amount, status, order_id),
+        "INSERT INTO Notifications (customer_id,message, created_at,status) VALUES (?, ?, ?,?)",
+        (
+            customer_id,
+            message,
+            created_at,
+            status_notification,
+        ),
     )
+    conn.commit()
+    conn.close()
+
+
+# Update a user
+def update_order(
+    status,
+    order_id,
+):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute(
+        "UPDATE Orders SET status = ? WHERE order_id = ?",
+        (status, order_id),
+    )
+
     conn.commit()
     conn.close()
     return get_order(order_id)
@@ -934,11 +979,29 @@ def get_order_by_id(order_id):
 
 @app.route("/orders/<int:order_id>", methods=["PUT"])
 def update_order_by_id(order_id):
-    order_date = request.json["order_date"]
-    total_amount = request.json["total_amount"]
-    status = request.json["status"]
 
-    updated = update_order(order_date, total_amount, status, order_id)
+    status = request.json["status"]
+    ci = customer_id(order_id)
+    time = datetime.today().strftime("%Y-%m-%d")
+    statusToPershian = ""
+    if status == "Send":
+        statusToPershian = "ارسال"
+    elif status == "Confirmation":
+        statusToPershian = "تایید"
+    elif status == "Delivery":
+        statusToPershian = "تحویل"
+    message = f"سفارش شما در حالت {statusToPershian} قرار گرفت"
+
+    notification(
+        ci,
+        message,
+        time,
+        "Unread",
+    )
+    updated = update_order(
+        status,
+        order_id,
+    )
     return jsonify(updated), 200
 
 
@@ -1056,5 +1119,6 @@ def list_order_details():
     response.headers["Access-Control-Expose-Headers"] = "Content-Range"
     response.headers["Content-Range"] = len(details)
     return response
+
 
 # .......................order details end..........................

@@ -15,7 +15,8 @@ import {
   ImageField,
 } from "react-admin";
 import { Stack } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useEffect, useState, ReactElement } from "react";
+import { EditButton, Edit, SimpleForm } from "react-admin";
 
 const CustomerFilters = [
   <SearchInput source="name" alwaysOn />,
@@ -33,12 +34,13 @@ const ListToolbar = () => (
 export const OrderList = () => (
   <List>
     <ListToolbar />
-    <Datagrid rowClick="edit">
+    <Datagrid>
       <TextField source="id" />
       <TextField source="username" />
       <DateField source="order_date" />
       <NumberField source="total_amount" />
       <TextField source="status" />
+      <EditButton label="" />
       <TextField source="quantity" />
     </Datagrid>
   </List>

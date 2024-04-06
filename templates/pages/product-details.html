@@ -204,5 +204,35 @@
     </div>
   </div>
 </div>
-
+<h5 class="mt-5 text-center border border-2 py-3 rounded-4 mx-5 mt-5 {{display_similar}}">
+  محصولات مشابه
+</h5>
+<div class="container mt-5">
+  <div class="row">
+    {% for i in product_list %}
+    <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6">
+      <a href="/home/product-details/{{i['product_id']}}">
+        <div class="card w-100">
+          <img
+            src="data:image/jpeg;base64,{{ i['picture'] }}"
+            class="w-100"
+            alt="img"
+          />
+          <div class="card-header">
+            <h5 class="card-title">{{i["name"]}}</h5>
+          </div>
+          <div class="card-body">
+            <p class="card-text">{{i["description"]}}</p>
+          </div>
+          <div
+            class="card-footer d-flex justify-content-between align-items-center"
+          >
+            <h6 class="text-primary py-1">{{i["price"]}} تومان</h6>
+          </div>
+        </div>
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+</div>
 {% endblock body %}

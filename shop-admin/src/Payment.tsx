@@ -25,7 +25,6 @@ const ListToolbar = () => (
     <FilterForm filters={CustomerFilters} />
     <div>
       <FilterButton filters={CustomerFilters} />
-      <CreateButton />
     </div>
   </Stack>
 );

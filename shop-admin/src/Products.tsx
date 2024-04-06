@@ -40,15 +40,15 @@ export const ProductList = () => (
       <NumberField source="price" />
       <TextField source="description" />
       <TextField source="categories_name" />
+
       <ImageField
-        source="picture"
+        source=""
         sx={{
           "& img": {
             maxWidth: 100,
             maxHeight: 100,
             objectFit: "contain",
           },
-          data: "data:image/jpeg;base64",
         }}
       />
     </Datagrid>

@@ -14,6 +14,7 @@ import { UserList } from "./User";
 import { OrderList } from "./Order";
 import { PaymentList } from "./Payment";
 import { OrderDetailsList } from "./Order_Details";
+import CustomEditGuesser from './Custom';
 
 export const App = () => (
   <Admin dataProvider={dataProvider} authProvider={authProvider}>
@@ -55,7 +56,7 @@ export const App = () => (
     <Resource
       name="orders"
       list={OrderList}
-      edit={EditGuesser}
+      edit={CustomEditGuesser}
       show={ShowGuesser}
     />
     <Resource

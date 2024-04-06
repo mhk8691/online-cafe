@@ -15,6 +15,7 @@ import {
   ImageField,
 } from "react-admin";
 import { Stack } from "@mui/material";
+import { blob } from "stream/consumers";
 
 const CustomerFilters = [
   <SearchInput source="name" alwaysOn />,
@@ -38,7 +39,7 @@ export const CategoriesList = () => (
       <NumberField source="parent_category_id" />
       <DateField source="created_at" />
       <TextField source="description" />
-      {/* <ImageField source="picture" /> */}
+      <ImageField source="picture" />
     </Datagrid>
   </List>
 );

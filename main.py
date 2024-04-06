@@ -152,7 +152,7 @@ def end_payment(payment_method):
 
     connection.execute(
         "INSERT INTO Orders (customer_id,order_date,total_amount,status) VALUES (?,?,?,?)",
-        (int(customer_information[0]), time, quantity2, "waiting"),
+        (int(customer_information[0]), time, quantity2, "Waiting"),
     )
 
     product_list = []

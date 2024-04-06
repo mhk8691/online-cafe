@@ -13,6 +13,9 @@ conn = sqlite3.connect("onlineShop.db", check_same_thread=False)
 conn.row_factory = sqlite3.Row
 connection = conn.cursor()
 
+category_id = None
+product_id = None
+
 
 # show all product
 @app.route("/home/category/<int:category_id>")
@@ -63,6 +66,27 @@ def cart(product_id):
     conn.commit()
 
 
+def similar_products(product_id, category_id):
+    connection.execute(
+            "SELECT * FROM Products INNER JOIN Categories ON Products.categories_id = Categories.category_id WHERE categories_id = ? AND product_id != ? LIMIT 4 ",
+            (category_id, product_id),
+        )
+    product_list = connection.fetchall()
+    final_product_list = []
+    for product in product_list:
+        picture_base64 = base64.b64encode(product[4]).decode("utf-8")
+        final_product_list.append(
+            {
+                "product_id": product[0],
+                "name": product[1],
+                "description": product[2],
+                "price": product[3],
+                "picture": picture_base64,
+            }
+        )
+    return final_product_list
+
+
 # View product_details
 @app.route("/home/product-details/<int:id>", methods=["POST", "GET"])
 def product_details(id):
@@ -70,7 +94,7 @@ def product_details(id):
         return redirect(url_for("login"))
     else:
         connection.execute(
-            """SELECT product_id, name, description, price, picture FROM Products WHERE product_id = ? """,
+            """SELECT * FROM Products WHERE product_id = ? """,
             (id,),
         )
         product = connection.fetchone()
@@ -82,6 +106,8 @@ def product_details(id):
             "price": product[3],
             "picture": base64.b64encode(product[4]).decode("utf-8"),
         }
+        product_id = product[0]
+        category_id = product[5]
 
         if request.method == "POST":
             cart(product_data["product_id"])
@@ -97,11 +123,20 @@ def product_details(id):
         else:
             display = "d-block"
             display2 = "d-none"
+
+        # similar_products
+        product_list = similar_products(product_id,category_id)
+        if len(product_list) == 0:
+            display_similar = "d-none"
+        else:
+            display_similar = "d-block"
         return render_template(
             "pages/product-details.html",
             product_data=product_data,
             display=display,
             display2=display2,
+            product_list=product_list,
+            display_similar=display_similar,
         )
 
 
