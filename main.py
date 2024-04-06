@@ -37,11 +37,16 @@ def home():
                     "picture": picture_base64,
                 }
             )
-
+        notification = notification_user()
+        if len(notification) == 0:
+            display = "d-none"
+        else:
+            display = "d-block"
         return render_template(
             "pages/index.html",
             list=list,
             len=len(list),
+            display = display
         )
 
 
@@ -205,6 +210,31 @@ def end_payment(payment_method):
 
     return render_template("pages/end-payment.html")
 
+
+def notification_user():
+    connection.execute(
+        "SELECT message,status FROM Notifications WHERE customer_id = ?",
+        (customer_information[0],),
+    )
+    notification_list = connection.fetchall()
+    notification_list2 = []
+    for notification in notification_list:
+        notification_list2.append(
+            {"message": notification[0], "status": notification[1]}
+        )
+    return notification_list2
+
+
+@app.route("/notification/")
+def notification():
+    if len(customer_information) == 0:
+        return redirect(url_for("login"))
+    else:
+
+        notification_list = notification_user()
+        return render_template(
+            "pages/notification.html", notification_list=notification_list
+        )
 
 if __name__ == "__main__":
     app.run(debug=True)
