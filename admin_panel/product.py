@@ -9,7 +9,8 @@ app = connect_db.app
 
 
 cors = CORS(app)
-app.config["UPLOAD_FOLDER"] = "static/img/"
+UPLOAD_FOLDER = "static/img/"
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 
 def get_db_connection():
@@ -117,6 +118,9 @@ def delete_product(product_id):
     conn.close()
 
 
+import os
+
+
 # CRUD routes
 @app.route("/product/", methods=["GET"])
 def list_product():
@@ -136,9 +140,7 @@ def add_product():
     description = request.json["description"]
     price = request.json["price"]
     categories_id = request.json["categories_id"]
-    file = request.json["pictures"]
-    print(file["src"])
-    url = file["src"]
+    image = request.json["pictures"]
 
     product_id = create_product(name, description, price, categories_id, "filename")
     return jsonify(get_product(product_id)), 201

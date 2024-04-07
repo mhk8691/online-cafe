@@ -233,7 +233,7 @@ def Send_status():
 
 def Delivery_status():
     connection.execute(
-        """SELECT Products.product_id,Products.name,Products.description,Products.price,Products.picture ,Order_Details.quantity
+        """SELECT Products.product_id,Products.name,Products.description,Products.price,Products.picture ,Order_Details.quantity,Orders.order_id
         FROM Order_Details 
         INNER JOIN Products 
         on Products.product_id = Order_Details.product_id
@@ -257,6 +257,7 @@ def Delivery_status():
                 "price": order[3],
                 "picture": base64.b64encode(order[4]).decode("utf-8"),
                 "quantity": order[5],
+                "order_id": order[6],
             }
         )
     return order_list2_Delivery
