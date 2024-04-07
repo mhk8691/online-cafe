@@ -7,8 +7,6 @@ import base64
 import product as product
 from datetime import datetime
 
-
-# Connect to the database
 conn = sqlite3.connect("onlineShop.db", check_same_thread=False)
 conn.row_factory = sqlite3.Row
 connection = conn.cursor()
@@ -43,10 +41,7 @@ def home():
         else:
             display = "d-block"
         return render_template(
-            "pages/index.html",
-            list=list,
-            len=len(list),
-            display = display
+            "pages/index.html", list=list, len=len(list), display=display
         )
 
 
@@ -235,6 +230,7 @@ def notification():
         return render_template(
             "pages/notification.html", notification_list=notification_list
         )
+
 
 if __name__ == "__main__":
     app.run(debug=True)

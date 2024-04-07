@@ -42,7 +42,7 @@ export const ProductList = () => (
       <TextField source="categories_name" />
 
       <ImageField
-        source=""
+        source="picture"
         sx={{
           "& img": {
             maxWidth: 100,

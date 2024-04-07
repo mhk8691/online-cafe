@@ -12,8 +12,6 @@ import {
 } from "react-admin";
 import { useState, useEffect } from "react";
 
-
-
 export const ProductCreate = () => (
   <Create>
     <SimpleForm>
@@ -26,7 +24,7 @@ export const ProductCreate = () => (
       />
       <TextInput source="price" multiline={true} label="Price" fullWidth />
       <SelectInput // Use SelectInput for category selection if applicable
-        source="id"
+        source="categories_id"
         label="Category"
         fullWidth
         choices={[
@@ -37,9 +35,9 @@ export const ProductCreate = () => (
           { id: 4, name: "Category 4" },
         ]}
       />
-      
+
       <ImageInput source="pictures" label="Related pictures">
-        <ImageField source="src" title="title" />
+        <ImageField source="src"  title="title" />
       </ImageInput>
     </SimpleForm>
   </Create>
