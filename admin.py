@@ -14,6 +14,7 @@ import admin_panel.shipping
 import admin_panel.user
 import admin_panel.payment
 import admin_panel.order_details
+import admin_panel.Feedback
 
 
 

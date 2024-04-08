@@ -4,6 +4,8 @@ from flask_cors import CORS, cross_origin
 import connect_db as connect_db
 from datetime import datetime
 import re
+from fileinput import filename
+
 
 app = connect_db.app
 
@@ -119,7 +121,7 @@ def delete_product(product_id):
 
 
 import os
-
+import requests
 
 # CRUD routes
 @app.route("/product/", methods=["GET"])
@@ -141,8 +143,9 @@ def add_product():
     price = request.json["price"]
     categories_id = request.json["categories_id"]
     image = request.json["pictures"]
-
-    product_id = create_product(name, description, price, categories_id, "filename")
+    url = image["src"] + "/" + image["title"]
+    
+    product_id = create_product(name, description, price, categories_id, "image")
     return jsonify(get_product(product_id)), 201
 
 

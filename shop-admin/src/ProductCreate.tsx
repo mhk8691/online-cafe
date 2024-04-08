@@ -36,9 +36,12 @@ export const ProductCreate = () => (
         ]}
       />
 
-      <FileInput source="pictures" label="Related pictures">
-        <ImageField source="src"  title="title" />
-      </FileInput>
+      <ImageInput source="pictures" label="Related pictures">
+        
+      </ImageInput>
+      
     </SimpleForm>
   </Create>
 );
+
+
