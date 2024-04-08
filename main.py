@@ -15,6 +15,12 @@ app = connect_db.app
 customer_information = user_acount.customer_information
 
 
+# Route for 404 page
+@app.errorhandler(404)
+def page_not_found(error):
+    return render_template("pages/404.html"), 404
+
+
 def notification_Unread():
     connection.execute(
         "SELECT message,status,created_at FROM Notifications WHERE customer_id = ? AND status = ?",
