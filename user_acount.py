@@ -9,7 +9,7 @@ app = connect_db.app
 
 def notification_Unread():
     connection.execute(
-        "SELECT message,status,created_at FROM Notifications WHERE customer_id = ? AND status = ?",
+        "SELECT message,status,created_at FROM Notifications WHERE customer_id = ? AND status = ? order by created_at desc",
         (
             customer_information[0],
             "Unread",
@@ -32,7 +32,7 @@ def notification_Unread():
 
 def notification_Read():
     connection.execute(
-        "SELECT message,status,created_at FROM Notifications WHERE customer_id = ? AND status = ?",
+        "SELECT message,status,created_at FROM Notifications WHERE customer_id = ? AND status = ? order by created_at desc",
         (
             customer_information[0],
             "Read",

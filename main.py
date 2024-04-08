@@ -2,7 +2,7 @@ from flask import Flask, redirect, url_for, request, render_template, jsonify
 import sqlite3
 import connect_db as connect_db
 import user_acount as user_acount
-import admin as admin
+import admin_panel.admin as admin
 import base64
 import product as product
 from datetime import datetime
