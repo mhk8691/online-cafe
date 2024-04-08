@@ -1,5 +1,5 @@
 const stars = document.querySelectorAll(".rating input");
-let test = document.getElementById("test");
+let test = document.getElementById("rating");
 let star1 = document.getElementById("star1");
 star1.checked = true;
 stars.forEach((star) => {

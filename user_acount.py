@@ -6,8 +6,54 @@ import base64
 
 app = connect_db.app
 
-customer_information = []
 
+def notification_Unread():
+    connection.execute(
+        "SELECT message,status,created_at FROM Notifications WHERE customer_id = ? AND status = ?",
+        (
+            customer_information[0],
+            "Unread",
+        ),
+    )
+
+    notification_list = connection.fetchall()
+    notification_list2 = []
+    for notification in notification_list:
+        notification_list2.append(
+            {
+                "message": notification[0],
+                "status": notification[1],
+                "created_at": notification[2],
+            }
+        )
+
+    return notification_list2
+
+
+def notification_Read():
+    connection.execute(
+        "SELECT message,status,created_at FROM Notifications WHERE customer_id = ? AND status = ?",
+        (
+            customer_information[0],
+            "Read",
+        ),
+    )
+    notification_list_read = connection.fetchall()
+    notification_read = []
+
+    for notification in notification_list_read:
+        notification_read.append(
+            {
+                "message": notification[0],
+                "status": notification[1],
+                "created_at": notification[2],
+            }
+        )
+    return notification_read
+
+
+customer_information = []
+time = datetime.today().strftime("%Y-%m-%d")
 # Connect to the database
 conn = sqlite3.connect("onlineShop.db", check_same_thread=False)
 conn.row_factory = sqlite3.Row
@@ -50,7 +96,6 @@ def signup():
         password = request.form["password"]
         email = request.form["email"]
         phone_number = request.form["phone_number"]
-        time = datetime.today().strftime("%Y-%m-%d")
         connection.execute(
             "SELECT username FROM Customers WHERE username = '" + username + "'  "
         )
@@ -263,16 +308,69 @@ def Delivery_status():
     return order_list2_Delivery
 
 
-@app.route("/order-history/")
+def feedback(order_id, rating, comment):
+
+    connection.execute(
+        "INSERT INTO Feedback(customer_id,order_id,rating,comment,feedback_date) VALUES (?,?,?,?,?)",
+        (
+            customer_information[0],
+            order_id,
+            rating,
+            comment,
+            time,
+        ),
+    )
+    conn.commit()
+
+
+@app.route("/order-history/", methods=["POST", "GET"])
 def order_history():
     order_list_waiting = waiting_status()
     order_list_confirmation = confirmation_status()
     order_list_send = Send_status()
     order_list_Delivery = Delivery_status()
+    notification_user2 = notification_Unread()
+
+    if len(notification_user2) == 0:
+        display = "d-none"
+    else:
+        display = "d-block"
+
+    if request.method == "POST":
+        order_id = request.form["order_id"]
+        rating = request.form["rating"]
+        comment = request.form["comment"]
+        feedback(order_id, rating, comment)
+        return redirect(url_for("home"))
+
     return render_template(
         "pages/order-history.html",
         order_list_waiting=order_list_waiting,
         order_list_confirmation=order_list_confirmation,
         order_list_send=order_list_send,
         order_list_Delivery=order_list_Delivery,
+        display=display,
     )
+
+
+@app.route("/notification/")
+def notification():
+    if len(customer_information) == 0:
+        return redirect(url_for("login"))
+    else:
+        notification_unread = notification_Unread()
+        notification_read = notification_Read()
+        connection.execute(
+            "UPDATE Notifications SET status =? WHERE customer_id = ?",
+            (
+                "Read",
+                customer_information[0],
+            ),
+        )
+        conn.commit()
+
+        return render_template(
+            "pages/notification.html",
+            notification_unread=notification_unread,
+            notification_read=notification_read,
+        )

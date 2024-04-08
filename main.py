@@ -15,6 +15,29 @@ app = connect_db.app
 customer_information = user_acount.customer_information
 
 
+def notification_Unread():
+    connection.execute(
+        "SELECT message,status,created_at FROM Notifications WHERE customer_id = ? AND status = ?",
+        (
+            customer_information[0],
+            "Unread",
+        ),
+    )
+
+    notification_list = connection.fetchall()
+    notification_list2 = []
+    for notification in notification_list:
+        notification_list2.append(
+            {
+                "message": notification[0],
+                "status": notification[1],
+                "created_at": notification[2],
+            }
+        )
+
+    return notification_list2
+
+
 # home page
 @app.route("/home/", methods=["POST", "GET"])
 def home():
@@ -35,7 +58,7 @@ def home():
                     "picture": picture_base64,
                 }
             )
-        notification = notification_user()
+        notification = notification_Unread()
         if len(notification) == 0:
             display = "d-none"
         else:
@@ -204,32 +227,6 @@ def end_payment(payment_method):
     conn.commit()
 
     return render_template("pages/end-payment.html")
-
-
-def notification_user():
-    connection.execute(
-        "SELECT message,status FROM Notifications WHERE customer_id = ?",
-        (customer_information[0],),
-    )
-    notification_list = connection.fetchall()
-    notification_list2 = []
-    for notification in notification_list:
-        notification_list2.append(
-            {"message": notification[0], "status": notification[1]}
-        )
-    return notification_list2
-
-
-@app.route("/notification/")
-def notification():
-    if len(customer_information) == 0:
-        return redirect(url_for("login"))
-    else:
-
-        notification_list = notification_user()
-        return render_template(
-            "pages/notification.html", notification_list=notification_list
-        )
 
 
 if __name__ == "__main__":

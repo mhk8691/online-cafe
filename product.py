@@ -17,6 +17,29 @@ category_id = None
 product_id = None
 
 
+def notification_Unread():
+    connection.execute(
+        "SELECT message,status,created_at FROM Notifications WHERE customer_id = ? AND status = ?",
+        (
+            customer_information[0],
+            "Unread",
+        ),
+    )
+
+    notification_list = connection.fetchall()
+    notification_list2 = []
+    for notification in notification_list:
+        notification_list2.append(
+            {
+                "message": notification[0],
+                "status": notification[1],
+                "created_at": notification[2],
+            }
+        )
+
+    return notification_list2
+
+
 # show all product
 @app.route("/home/category/<int:category_id>")
 def product(category_id):
@@ -33,27 +56,36 @@ def product(category_id):
         """,
             (category_id,),  # Pass category_id as a tuple
         )
-    products = connection.fetchall()
-    connection.execute(
-        "SELECT name FROM Categories WHERE category_id = ?", (str(category_id),)
-    )
-    category_name = connection.fetchone()
-
-    product_list = []
-
-    for product in products:
-        picture_base64 = base64.b64encode(product[4]).decode("utf-8")
-        product_list.append(
-            {
-                "product_id": product[0],
-                "name": product[1],
-                "description": product[2],
-                "price": product[3],
-                "picture": picture_base64,
-            }
+        products = connection.fetchall()
+        connection.execute(
+            "SELECT name FROM Categories WHERE category_id = ?", (str(category_id),)
         )
+        category_name = connection.fetchone()
+
+        product_list = []
+
+        for product in products:
+            picture_base64 = base64.b64encode(product[4]).decode("utf-8")
+            product_list.append(
+                {
+                    "product_id": product[0],
+                    "name": product[1],
+                    "description": product[2],
+                    "price": product[3],
+                    "picture": picture_base64,
+                }
+            )
+        notification_user2 = notification_Unread()
+
+        if len(notification_user2) == 0:
+            display = "d-none"
+        else:
+            display = "d-block"
     return render_template(
-        "pages/product.html", product_list=product_list, category_name=category_name[0]
+        "pages/product.html",
+        product_list=product_list,
+        category_name=category_name[0],
+        display=display,
     )
 
 
@@ -68,9 +100,9 @@ def cart(product_id):
 
 def similar_products(product_id, category_id):
     connection.execute(
-            "SELECT * FROM Products INNER JOIN Categories ON Products.categories_id = Categories.category_id WHERE categories_id = ? AND product_id != ? LIMIT 4 ",
-            (category_id, product_id),
-        )
+        "SELECT * FROM Products INNER JOIN Categories ON Products.categories_id = Categories.category_id WHERE categories_id = ? AND product_id != ? LIMIT 4 ",
+        (category_id, product_id),
+    )
     product_list = connection.fetchall()
     final_product_list = []
     for product in product_list:
@@ -125,11 +157,18 @@ def product_details(id):
             display2 = "d-none"
 
         # similar_products
-        product_list = similar_products(product_id,category_id)
+        product_list = similar_products(product_id, category_id)
         if len(product_list) == 0:
             display_similar = "d-none"
         else:
             display_similar = "d-block"
+
+        notification_user2 = notification_Unread()
+
+        if len(notification_user2) == 0:
+            display_not = "d-none"
+        else:
+            display_not = "d-block"
         return render_template(
             "pages/product-details.html",
             product_data=product_data,
@@ -137,6 +176,7 @@ def product_details(id):
             display2=display2,
             product_list=product_list,
             display_similar=display_similar,
+            display_not=display_not,
         )
 
 
@@ -228,6 +268,13 @@ def user_cart():
         else:
             display_address = "http://localhost:5000/checkout/"
             display_address2 = ""
+
+        notification_user2 = notification_Unread()
+
+        if len(notification_user2) == 0:
+            display_not = "d-none"
+        else:
+            display_not = "d-block"
         return render_template(
             "pages/cart.html",
             product_list=product_list,
@@ -236,4 +283,5 @@ def user_cart():
             display=display,
             display_address=display_address,
             display_address2=display_address2,
+            display_not=display_not,
         )
