@@ -1,4 +1,4 @@
-from flask import Flask, redirect, url_for, request, render_template, jsonify
+from flask import Flask, redirect, url_for, request, render_template, jsonify,send_file
 import sqlite3
 import connect_db as connect_db
 import user_acount as user_acount
@@ -6,6 +6,7 @@ import admin_panel.admin as admin
 import base64
 import product as product
 from datetime import datetime
+import os
 
 conn = sqlite3.connect("onlineShop.db", check_same_thread=False)
 conn.row_factory = sqlite3.Row
@@ -163,6 +164,70 @@ def delete_cart():
     conn.commit()
 
 
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+
+
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib import colors
+
+from reportlab.platypus import Paragraph
+
+
+def create_pdf_from_object(data_list, file_name="Factor.pdf"):
+    doc = SimpleDocTemplate(file_name, pagesize=letter)
+
+    table_data = []
+
+    # ایجاد سرتیتر جدول
+    headers = ["Order ID", "Product Name", "Quantity", "Unit Price", "Total Price"]
+    table_data.append(headers)
+
+    # اضافه کردن داده‌ها به جدول
+    for data in data_list:
+        row = [
+            data.get("order_id", ""),
+            data.get("product_name", ""),
+            data.get("quantity", ""),
+            data.get("unit_price", ""),
+            data.get("total_price", ""),
+        ]
+        table_data.append(row)
+
+    # اضافه کردن سطر قیمت نهایی
+    final_price = sum(float(data.get("total_price", 0)) for data in data_list)
+    final_row = [""] * len(headers)  # ساخت یک لیست خالی برای همه‌ی ستون‌ها
+    final_row[0] = "{:.2f}".format(
+        final_price
+    )  # اضافه کردن مقدار قیمت نهایی به آخرین ستون
+    table_data.append(final_row)
+
+    # ایجاد جدول
+    table = Table(table_data)
+
+    # تنظیمات استایل برای جدول
+    style = TableStyle(
+        [
+            ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey),  # رنگ سرتیتر
+            ("TEXTCOLOR", (0, 0), (-1, 0), colors.black),  # رنگ متن سرتیتر
+            ("ALIGN", (0, 0), (-1, -1), "CENTER"),  # مرکز چین
+            ("GRID", (0, 0), (-1, -1), 1, colors.black),  # رنگ خطوط border
+            ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),  # فونت سرتیتر
+            ("BACKGROUND", (0, 1), (-1, -2), colors.white),  # رنگ پس زمینه مقادیر
+            ("FONTNAME", (0, 1), (-1, -2), "Helvetica"),  # فونت مقادیر
+            ("SPAN", (0, -1), (-1, -1)),  # ترکیب ستون‌ها تا ستون قیمت نهایی
+            ("ALIGN", (0, -1), (-1, -1), "CENTER"),  # مرکز چین کردن مقدار قیمت نهایی
+        ]
+    )
+
+    # اعمال استایل به جدول
+    table.setStyle(style)
+
+    # افزودن جدول به فایل PDF
+    doc.build([table])
+
+
 @app.route("/end-payment/<string:payment_method>/")
 def end_payment(payment_method):
     time = datetime.today().strftime("%Y-%m-%d")
@@ -230,9 +295,39 @@ def end_payment(payment_method):
         (order_id_payment2, payment_method, quantity2, time),
     )
     delete_cart()
-    conn.commit()
 
+    conn.commit()
+    connection.execute(
+        """
+        SELECT order_id,Products.name,quantity ,unit_price,(quantity * unit_price) as total_price 
+        FROM Order_Details 
+        INNER JOIN Products 
+        on Products.product_id = Order_Details.product_id  
+        WHERE order_id = ?
+        """,
+        (order_id_payment2,),
+    )
+    order_details = connection.fetchall()
+    order_details_list = []
+    for order_detail in order_details:
+        order_details_list.append(
+            {
+                "order_id": str(order_detail[0]),
+                "product_name": str(order_detail[1]),
+                "quantity": str(order_detail[2]),
+                "unit_price": str(order_detail[3]),
+                "total_price": str(order_detail[4]),
+            }
+        )
+
+    create_pdf_from_object(order_details_list)
     return render_template("pages/end-payment.html")
+
+
+@app.route("/download_pdf")
+def download_pdf():
+    pdf_path = "Factor.pdf"  # مسیر فایل PDF
+    return send_file(pdf_path, as_attachment=True)
 
 
 if __name__ == "__main__":

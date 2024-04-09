@@ -148,8 +148,8 @@ def add_product():
     price = request.json["price"]
     categories_id = request.json["categories_id"]
     image = request.json["pictures"]
-    url = image["src"] + "/" + image["title"]
-    
+    # url = image["src"] + "/" + image["title"]
+    print(image)
     product_id = create_product(name, description, price, categories_id, "image")
     return jsonify(get_product(product_id)), 201
 

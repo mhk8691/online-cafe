@@ -105,6 +105,7 @@ def list_customer():
     response = jsonify(customers)
     response.headers["Access-Control-Expose-Headers"] = "Content-Range"
     response.headers["Content-Range"] = len(customers)
+
     return response
 
 
