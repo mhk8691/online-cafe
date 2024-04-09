@@ -1,17 +1,39 @@
-
 {
-  "users": [
-    {
-      "id": 1,
-      "username": "janedoe",
-      "password": "password",
-      "fullName": "Jane Doe"
-    },
-    {
-      "id": 2,
-      "username": "johndoe",
-      "password": "password",
-      "fullName": "John Doe"
-    }
-  ]
+    "users": [
+        {
+            "email": "mohammad@gmail.com",
+            "id": 1,
+            "password": "03731289912",
+            "role": "mod",
+            "username": "mohammad1"
+        },
+        {
+            "email": "mohammad@gmial.com",
+            "id": 3,
+            "password": "123",
+            "role": "test",
+            "username": "mhk"
+        },
+        {
+            "email": "salam@gmail.com",
+            "id": 4,
+            "password": "123",
+            "role": "1",
+            "username": "salam"
+        },
+        {
+            "email": "test@gmail.com",
+            "id": 6,
+            "password": "789",
+            "role": "1",
+            "username": "test"
+        },
+        {
+            "email": "javd@gmail.com",
+            "id": 7,
+            "password": "123456",
+            "role": "j",
+            "username": "javad"
+        }
+    ]
 }

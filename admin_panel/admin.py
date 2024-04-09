@@ -17,30 +17,3 @@ import admin_panel.order_details
 import admin_panel.Feedback
 
 
-
-
-
-
-
-
-
-
-
-
-# def get_user(user_id):
-#     conn = get_db_connection()
-#     cur = conn.cursor()
-#     cur.execute("SELECT * FROM Users WHERE user_id = ?", (user_id,))
-
-#     user = cur.fetchone()
-
-#     final_user = {
-#         "id": user[0],
-#         "username": user[1],
-#         "password": user[2],
-#         "email": user[3],
-#         "role": user[4],
-#     }
-
-#     conn.close()
-#     return final_user
