@@ -1,0 +1,8 @@
+@font-face {
+    font-family: gandom;
+    src: url(../font/Gandom.eot) format('eot'),
+    url(../font/Gandom.woff) format('woff');
+}
+*,body{
+    font-family: gandom !important;
+}

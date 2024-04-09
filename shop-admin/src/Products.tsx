@@ -13,6 +13,7 @@ import {
   NumberField,
   DateField,
   ImageField,
+  SelectField,
 } from "react-admin";
 import { Stack } from "@mui/material";
 import { useEffect, useState } from "react";
@@ -30,6 +31,7 @@ const ListToolbar = () => (
     </div>
   </Stack>
 );
+
 
 export const ProductList = () => (
   <List>
@@ -51,6 +53,7 @@ export const ProductList = () => (
           },
         }}
       />
+      
     </Datagrid>
   </List>
 );

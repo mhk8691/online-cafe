@@ -25,9 +25,13 @@ def get_db_connection():
 def get_product(product_id):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM Products WHERE product_id = ?", (product_id,))
+    cur.execute(
+        "SELECT * FROM Products INNER JOIN Categories ON Categories.category_id =Products.categories_id  WHERE product_id = ?",
+        (product_id,),
+    )
 
     product = cur.fetchone()
+
     # picture_base64 = base64.b64encode(product[4]).decode("utf-8")
 
     cur.execute(
@@ -38,6 +42,7 @@ def get_product(product_id):
     name = cur.fetchone()
     for name2 in name:
         category_name = name2
+
     final_product = {
         "id": product[0],
         "name": product[1],
