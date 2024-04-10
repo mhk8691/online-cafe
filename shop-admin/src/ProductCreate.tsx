@@ -10,7 +10,8 @@ import {
   ImageInput,
   SelectInput, // Assuming you have categories for selection
 } from "react-admin";
-import { useState, useEffect } from "react";
+import data from "./category.json";
+let category = data.category;
 
 export const ProductCreate = () => (
   <Create>
@@ -27,21 +28,14 @@ export const ProductCreate = () => (
         source="categories_id"
         label="Category"
         fullWidth
-        choices={[
-          // Replace with your category options
-          { id: 1, name: "Category 1" },
-          { id: 2, name: "Category 2" },
-          { id: 3, name: "Category 3" },
-          { id: 4, name: "Category 4" },
-        ]}
+        choices={category.map((item) => ({
+          id: item.category_id,
+          name: item.category_name,
+        }))}
       />
 
-      <ImageInput source="pictures" label="Related pictures">
-        
-      </ImageInput>
-      
+      {/* جایگزین کردن */}
+      <ImageInput source="pictures" label="Related pictures"></ImageInput>
     </SimpleForm>
   </Create>
 );
-
-

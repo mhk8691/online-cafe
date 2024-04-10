@@ -3,7 +3,7 @@ import { Edit, SimpleForm, TextInput, SelectInput } from "react-admin";
 
 interface CustomEditProps {
   id: string;
-  status: string;
+  // status: string;
 
   // دیگر فیلدها
 }

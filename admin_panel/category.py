@@ -4,6 +4,7 @@ from flask_cors import CORS, cross_origin
 import connect_db as connect_db
 from datetime import datetime
 import re
+
 app = connect_db.app
 
 
@@ -65,7 +66,7 @@ def create_category(name, description, parent_category_id, created_at, picture):
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute(
-        "INSERT INTO Categories (name,description, parent_category_id,created_at,picture) VALUES (?, ?, ?,?,?)",
+        "INSERT INTO Categories (category_name,description, parent_category_id,created_at,picture) VALUES (?, ?, ?,?,?)",
         (name, description, parent_category_id, created_at, picture),
     )
     conn.commit()
@@ -79,7 +80,7 @@ def update_category(name, description, parent_category_id, category_id):
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute(
-        "UPDATE Categories SET name = ?,description = ?, parent_category_id = ? WHERE category_id = ?",
+        "UPDATE Categories SET category_name = ?,description = ?, parent_category_id = ? WHERE category_id = ?",
         (name, description, parent_category_id, category_id),
     )
     conn.commit()

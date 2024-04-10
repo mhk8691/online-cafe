@@ -10,12 +10,14 @@ import { CategoriesCreate } from "./CategoriesCreate";
 import { ShippingList } from "./Shipping";
 import { ShippingCreate } from "./ShippingCreate";
 import { UserCreate } from "./UserCreate";
+import { feedbackCreate } from "./Respond";
 import { UserList } from "./User";
 import { OrderList } from "./Order";
 import { PaymentList } from "./Payment";
 import { OrderDetailsList } from "./Order_Details";
 import { FeedbackList } from "./Feedback";
-import CustomEditGuesser from './Custom';
+import CustomEditGuesser from "./Custom";
+import productEdit from "./productEdit";
 
 export const App = () => (
   <Admin dataProvider={dataProvider} authProvider={authProvider}>
@@ -29,7 +31,7 @@ export const App = () => (
     <Resource
       name="product"
       list={ProductList}
-      edit={EditGuesser}
+      edit={productEdit}
       show={ShowGuesser}
       create={ProductCreate}
     />
@@ -63,15 +65,18 @@ export const App = () => (
     <Resource
       name="payment"
       list={PaymentList}
-      edit={EditGuesser}
       show={ShowGuesser}
     />
     <Resource
       name="Order_Details"
       list={OrderDetailsList}
-      edit={EditGuesser}
       show={ShowGuesser}
     />
-    <Resource name="feedback" list={FeedbackList} />
+    <Resource
+      name="feedback"
+      list={FeedbackList}
+      create={feedbackCreate}
+      show={ShowGuesser}
+    />
   </Admin>
 );

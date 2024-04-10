@@ -14,6 +14,8 @@ import {
   DateField,
   ImageField,
   SelectField,
+  EditButton,
+  ShowButton,
 } from "react-admin";
 import { Stack } from "@mui/material";
 import { useEffect, useState } from "react";
@@ -32,16 +34,15 @@ const ListToolbar = () => (
   </Stack>
 );
 
-
 export const ProductList = () => (
   <List>
     <ListToolbar />
     <Datagrid rowClick="edit">
       <NumberField source="id" />
       <TextField source="name" />
+      <TextField source="category_name" />
       <NumberField source="price" />
       <TextField source="description" />
-      <TextField source="categories_name" />
 
       <ImageField
         source="picture"
@@ -53,7 +54,8 @@ export const ProductList = () => (
           },
         }}
       />
-      
+      <EditButton label="" />
+      <ShowButton label="" />
     </Datagrid>
   </List>
 );

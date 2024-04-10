@@ -13,6 +13,8 @@ import {
   NumberField,
   DateField,
   ImageField,
+  EditButton,
+  ShowButton,
 } from "react-admin";
 import { Stack } from "@mui/material";
 
@@ -38,6 +40,7 @@ export const PaymentList = () => (
       <NumberField source="amount" />
       <DateField source="payment_date" />
       {/* <ImageField source="picture" /> */}
+      <ShowButton label="" />
     </Datagrid>
   </List>
 );

@@ -13,6 +13,8 @@ import {
   NumberField,
   DateField,
   ImageField,
+  EditButton,
+ShowButton
 } from "react-admin";
 import { Stack } from "@mui/material";
 
@@ -39,6 +41,8 @@ export const FeedbackList = () => (
       <TextField source="comment" />
       <DateField source="feedback_date" />
       {/* <ImageField source="picture" /> */}
+      <EditButton label="" />
+      <ShowButton label="" />
     </Datagrid>
   </List>
 );

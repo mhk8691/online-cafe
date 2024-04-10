@@ -154,6 +154,7 @@ def delete_order(order_id):
         "DELETE FROM Order_Details WHERE Order_Details.order_id = ?", (order_id,)
     )
     cur.execute("DELETE FROM Payments WHERE Payments.order_id = ?", (order_id,))
+    cur.execute("DELETE FROM Feedback WHERE Feedback.order_id = ?", (order_id,))
     conn.commit()
     conn.close()
 

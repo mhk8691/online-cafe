@@ -13,6 +13,8 @@ import {
   NumberField,
   DateField,
   ImageField,
+  EditButton,
+  ShowButton,
 } from "react-admin";
 import { Stack } from "@mui/material";
 
@@ -41,6 +43,8 @@ export const ShippingList = () => (
       <TextField source="state" />
       <TextField source="postal_code" />
       <TextField source="country" />
+      <EditButton label="" />
+      <ShowButton label="" />
     </Datagrid>
   </List>
 );

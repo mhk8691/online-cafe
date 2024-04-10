@@ -13,6 +13,8 @@ import {
   NumberField,
   DateField,
   ImageField,
+  EditButton,
+  ShowButton,
 } from "react-admin";
 import { Stack } from "@mui/material";
 import { useEffect, useState } from "react";
@@ -40,6 +42,8 @@ export const OrderDetailsList = () => (
       <TextField source="product_name" />
       <NumberField source="quantity" />
       <NumberField source="unit_price" />
+      <EditButton label="" />
+      <ShowButton label="" />
     </Datagrid>
   </List>
 );

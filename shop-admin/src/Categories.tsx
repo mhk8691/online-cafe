@@ -13,6 +13,8 @@ import {
   NumberField,
   DateField,
   ImageField,
+  EditButton,
+ShowButton
 } from "react-admin";
 import { Stack } from "@mui/material";
 import { blob } from "stream/consumers";
@@ -40,6 +42,8 @@ export const CategoriesList = () => (
       <DateField source="created_at" />
       <TextField source="description" />
       <ImageField source="picture" />
+      <EditButton label="" />
+      <ShowButton label="" />
     </Datagrid>
   </List>
 );
