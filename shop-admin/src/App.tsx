@@ -18,6 +18,10 @@ import { OrderDetailsList } from "./Order_Details";
 import { FeedbackList } from "./Feedback";
 import CustomEditGuesser from "./Custom";
 import productEdit from "./productEdit";
+import { Route } from 'react-router-dom';
+
+
+
 
 export const App = () => (
   <Admin dataProvider={dataProvider} authProvider={authProvider}>
@@ -27,6 +31,7 @@ export const App = () => (
       edit={EditGuesser}
       show={ShowGuesser}
       create={CustomerCreate}
+      
     />
     <Resource
       name="product"
@@ -62,16 +67,8 @@ export const App = () => (
       edit={CustomEditGuesser}
       show={ShowGuesser}
     />
-    <Resource
-      name="payment"
-      list={PaymentList}
-      show={ShowGuesser}
-    />
-    <Resource
-      name="Order_Details"
-      list={OrderDetailsList}
-      show={ShowGuesser}
-    />
+    <Resource name="payment" list={PaymentList} show={ShowGuesser} />
+    <Resource name="Order_Details" list={OrderDetailsList} show={ShowGuesser} />
     <Resource
       name="feedback"
       list={FeedbackList}

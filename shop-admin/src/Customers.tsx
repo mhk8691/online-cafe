@@ -18,8 +18,9 @@ ShowButton
 import { Stack } from "@mui/material";
 
 const CustomerFilters = [
-  <SearchInput source="name" alwaysOn />,
-  <TextInput label="email" source="email" defaultValue="irmrbug@gmail.com" />,
+  <SearchInput source="username" alwaysOn placeholder="username" />,
+  <TextInput label="email" source="email" defaultValue="@gmail.com" placeholder="email"/>,
+  <TextInput label="phone" source="phone" placeholder="phone" />,
 ];
 const ListToolbar = () => (
   <Stack direction="row" justifyContent="space-between">
@@ -39,8 +40,8 @@ export const CustomersList = () => (
       <TextField source="password" />
       <EmailField source="email" />
       <TextField source="phone" />
-      <EditButton label="" />
-      <ShowButton label="" />
+      <EditButton label="edit" />
+      <ShowButton label="show" />
     </Datagrid>
   </List>
 );

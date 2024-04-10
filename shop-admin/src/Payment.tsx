@@ -18,15 +18,20 @@ import {
 } from "react-admin";
 import { Stack } from "@mui/material";
 
-const CustomerFilters = [
-  <SearchInput source="name" alwaysOn />,
-  <TextInput label="email" source="email" defaultValue="irmrbug@gmail.com" />,
+const PaymentFilters = [
+  <SearchInput source="order_id" alwaysOn placeholder="order number" />,
+  <TextInput
+    label="payment method"
+    source="payment_method"
+    placeholder="payment method"
+  />,
+  <TextInput label="date" source="payment_date" placeholder="date" />,
 ];
 const ListToolbar = () => (
   <Stack direction="row" justifyContent="space-between">
-    <FilterForm filters={CustomerFilters} />
+    <FilterForm filters={PaymentFilters} />
     <div>
-      <FilterButton filters={CustomerFilters} />
+      <FilterButton filters={PaymentFilters} />
     </div>
   </Stack>
 );
@@ -38,7 +43,7 @@ export const PaymentList = () => (
       <TextField source="order_id" />
       <TextField source="payment_method" />
       <NumberField source="amount" />
-      <DateField source="payment_date" />
+      <DateField source="payment_date"/>
       {/* <ImageField source="picture" /> */}
       <ShowButton label="" />
     </Datagrid>

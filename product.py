@@ -58,7 +58,8 @@ def product(category_id):
         )
         products = connection.fetchall()
         connection.execute(
-            "SELECT name FROM Categories WHERE category_id = ?", (str(category_id),)
+            "SELECT category_name FROM Categories WHERE category_id = ?",
+            (str(category_id),),
         )
         category_name = connection.fetchone()
 

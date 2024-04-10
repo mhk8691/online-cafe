@@ -14,13 +14,14 @@ import {
   DateField,
   ImageField,
   EditButton,
-ShowButton
+  ShowButton,
 } from "react-admin";
 import { Stack } from "@mui/material";
 
 const FeedbackFilters = [
-  <SearchInput source="name" alwaysOn />,
-  <TextInput label="email" source="email" defaultValue="irmrbug@gmail.com" />,
+  <SearchInput source="order_id" alwaysOn placeholder="order id" />,
+  <TextInput label="customer name" source="username" placeholder="customer name" />,
+  <TextInput label="rating" source="rating" placeholder="rating" />,
 ];
 const ListToolbar = () => (
   <Stack direction="row" justifyContent="space-between">

@@ -78,7 +78,33 @@ def delete_customer(customer_id):
 def get_all_customers(limit):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM customers LIMIT " + str(limit))
+    cur.execute(
+        "SELECT * FROM customers LIMIT ?",
+        (str(limit),),
+    )
+    customers = cur.fetchall()
+    final_customers = []
+    for customer in customers:
+        final_customers.append(
+            {
+                "id": customer[0],
+                "username": customer[1],
+                "password": customer[2],
+                "email": customer[3],
+                "phone": customer[4],
+            }
+        )
+    conn.close()
+    return final_customers
+
+
+def get_all_customers_filter(name, search, limit):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute(
+        f"SELECT * FROM customers   WHERE {name} = ? LIMIT {limit}",
+        (search,),
+    )
     customers = cur.fetchall()
     final_customers = []
     for customer in customers:
@@ -101,8 +127,20 @@ def list_customer():
     range = request.args.get("range")
     x = re.split(",", range)
     final_range = re.split("]", x[1])[0]
+    get_filter = request.args.get("filter")
     customers = get_all_customers(int(final_range) + 1)
     response = jsonify(customers)
+    if len(get_filter) > 2:
+        name = re.split(r""":""", get_filter)
+        name2 = re.split(r"""^{\"""", name[0])
+        name2 = re.split(r"""\"$""", name2[1])
+        regex_filter = re.split(rf'"{name2[0]}":"(.*?)"', get_filter)
+
+        response = jsonify(
+            get_all_customers_filter(name2[0], regex_filter[1],int(final_range) + 1,),
+            
+        )
+
     response.headers["Access-Control-Expose-Headers"] = "Content-Range"
     response.headers["Content-Range"] = len(customers)
 

@@ -13,6 +13,7 @@ app.config["UPLOAD_FOLDER"] = "static/img/"
 
 feedback_id2 = None
 
+
 def get_db_connection():
     conn = sqlite3.connect("onlineShop.db")
     conn.row_factory = sqlite3.Row
@@ -51,27 +52,58 @@ def get_feedback(feedback_id):
 def get_all_feedback(limit):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM Feedback LIMIT ?", (str(limit),))
+    cur.execute(
+        "SELECT *,username FROM Feedback INNER JOIN Customers ON Customers.customer_id = Feedback.customer_id   LIMIT ?",
+        (str(limit),),
+    )
     feedbacks = cur.fetchall()
     final_feedback = []
     for feedback in feedbacks:
-        cur.execute(
-            "SELECT Customers.username FROM Customers WHERE customer_id = ?",
-            (feedback[1],),
-        )
-        username = cur.fetchone()
-        for username2 in username:
 
-            final_feedback.append(
-                {
-                    "id": feedback[0],
-                    "customer_name": username2,
-                    "order_id": feedback[2],
-                    "rating": feedback[3],
-                    "comment": feedback[4],
-                    "feedback_date": feedback[5],
-                }
-            )
+        final_feedback.append(
+            {
+                "id": feedback[0],
+                "customer_name": feedback[7],
+                "order_id": feedback[2],
+                "rating": feedback[3],
+                "comment": feedback[4],
+                "feedback_date": feedback[5],
+            }
+        )
+    conn.close()
+    return final_feedback
+
+
+# Get all feedback
+
+
+def get_all_feedback_filter(name, search, limit):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute(
+        f"SELECT *,username FROM Feedback INNER JOIN Customers ON Customers.customer_id = Feedback.customer_id  WHERE {name} = ? LIMIT {limit}",
+        (search,),
+    )
+    feedbacks = cur.fetchall()
+    final_feedback = []
+    for feedback in feedbacks:
+        # cur.execute(
+        #     "SELECT Customers.username FROM Customers WHERE customer_id = ? AND {name} = ?",
+        #     (feedback[1], search),
+        # )
+        # username = cur.fetchone()
+        # for username2 in username:
+
+        final_feedback.append(
+            {
+                "id": feedback[0],
+                "customer_name": feedback[7],
+                "order_id": feedback[2],
+                "rating": feedback[3],
+                "comment": feedback[4],
+                "feedback_date": feedback[5],
+            }
+        )
     conn.close()
     return final_feedback
 
@@ -89,17 +121,28 @@ def get_feedback_by_id(feedback_id):
 @app.route("/feedback/", methods=["GET"])
 def list_feedback():
     range = request.args.get("range")
-    sort = request.args.get("sort")
     x = re.split(",", range)
     final_range = re.split("]", x[1])[0]
-    sort = re.split(",", sort)
-    z = re.split("^\[", sort[1])
-    print(z[0])
+    get_filter = request.args.get("filter")
+    feedback = get_all_feedback(int(final_range) + 1)
+    response = jsonify(feedback)
+    if len(get_filter) > 2:
+        name = re.split(r""":""", get_filter)
+        name2 = re.split(r"""^{\"""", name[0])
+        name2 = re.split(r"""\"$""", name2[1])
+        regex_filter = re.split(rf'"{name2[0]}":"(.*?)"', get_filter)
 
-    payment = get_all_feedback(int(final_range) + 1)
-    response = jsonify(payment)
+        response = jsonify(
+            get_all_feedback_filter(
+                name2[0],
+                regex_filter[1],
+                int(final_range) + 1,
+            ),
+        )
+
     response.headers["Access-Control-Expose-Headers"] = "Content-Range"
-    response.headers["Content-Range"] = len(payment)
+    response.headers["Content-Range"] = len(feedback)
+
     return response
 
 
@@ -133,10 +176,9 @@ def customer_id(feedback_id):
     return customer_id
 
 
+print("hello")
 
 
-
-print("hello")  
 @app.route("/feedback", methods=["POST"])
 def add_feedback():
     # feedback_id = 2
