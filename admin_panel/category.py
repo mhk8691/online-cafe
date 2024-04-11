@@ -179,7 +179,7 @@ def add_category():
     picture = request.json["picture"]
     user_ip = request.remote_addr
 
-    action = f"Add Category {name}"
+    action = f"Add Category: {name}"
     admin_log(3, action, time, user_ip)
     category_id = create_category(
         name, description, parent_category_id, time, "picture.read()"
@@ -201,7 +201,7 @@ def update_category_by_id(category_id):
     description = request.json["description"]
     parent_category_id = request.json["parent_category_id"]
     user_ip = request.remote_addr
-    action = f"Update Category {name}"
+    action = f"Update Category: {name}"
     admin_log(3, action, time, user_ip)
     updated = update_category(name, description, parent_category_id, category_id)
     return jsonify(updated), 200
@@ -224,7 +224,7 @@ def get_name(category_id):
 def delete_category_by_id(category_id):
     user_ip = request.remote_addr
     name = get_name(category_id)
-    action = f"Delete Category {name}"
+    action = f"Delete Category: {name}"
     admin_log(3, action, time, user_ip)
     delete_category(category_id)
     return jsonify({"id": category_id}), 200

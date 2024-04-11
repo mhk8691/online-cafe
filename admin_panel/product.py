@@ -257,7 +257,7 @@ def add_product():
     # print(image)
     user_ip = request.remote_addr
 
-    action = f"Add product {name}"
+    action = f"Add product: {name}"
     admin_log(3, action, time, user_ip)
     print(categories_id)
     product_id = create_product(name, description, price, categories_id, "image")
@@ -299,7 +299,7 @@ def update_product_by_id(product_id):
     categories_id = request.json["categories_id"]
     user_ip = request.remote_addr
 
-    action = f"Update product {name}"
+    action = f"Update product: {name}"
     admin_log(3, action, time, user_ip)
     updated = update_product(name, description, price, categories_id, product_id)
     return jsonify(updated), 200
@@ -320,7 +320,7 @@ def get_name(product_id):
 def delete_product_by_id(product_id):
     user_ip = request.remote_addr
     name = get_name(product_id)
-    action = f"Delete product {name}"
+    action = f"Delete product: {name}"
     admin_log(3, action, time, user_ip)
     delete_product(product_id)
     return jsonify({"id": product_id}), 200

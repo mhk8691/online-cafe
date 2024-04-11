@@ -85,14 +85,6 @@ def get_all_order_details_filter(name, search, limit):
 @app.route("/Order_Details", methods=["POST"])
 @app.route("/Order_Details/", methods=["GET"])
 def list_order_details():
-    # range = request.args.get("range")
-    # x = re.split(",", range)
-    # final_range = re.split("]", x[1])[0]
-    # details = get_all_order_details(int(final_range) + 1)
-    # response = jsonify(details)
-    # response.headers["Access-Control-Expose-Headers"] = "Content-Range"
-    # response.headers["Content-Range"] = len(details)
-    # return response
     range = request.args.get("range")
     x = re.split(",", range)
     final_range = re.split("]", x[1])[0]

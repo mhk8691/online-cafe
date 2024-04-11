@@ -225,7 +225,7 @@ def update_shipping_by_id(address_id):
     postal_code = request.json["postal_code"]
     country = request.json["country"]
     user_ip = request.remote_addr
-    action = f"Update shipping {recipient_name}"
+    action = f"Update shipping: {recipient_name}"
     admin_log(3, action, time, user_ip)
     updated = update_shipping(
         recipient_name,
@@ -258,7 +258,7 @@ def get_name(shipping_id):
 def delete_shipping_by_id(address_id):
     user_ip = request.remote_addr
     name = get_name(address_id)
-    action = f"Delete shipping {name}"
+    action = f"Delete shipping: {name}"
     admin_log(3, action, time, user_ip)
     delete_shipping(address_id)
     return jsonify({"id": address_id}), 200

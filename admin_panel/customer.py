@@ -177,7 +177,7 @@ def add_customer():
     phone = request.json["phone"]
     user_ip = request.remote_addr
 
-    action = f"Add user {name}"
+    action = f"Add user: {name}"
     admin_log(3, action, time, user_ip)
     customer_id = create_customer(name, password, email, phone, time)
     return jsonify(get_customer(customer_id)), 201
@@ -200,7 +200,7 @@ def update_customer_by_id(customer_id):
     user_ip = request.remote_addr
 
     updated = update_customer(customer_id, name, password, email, phone)
-    action = f"Update user {name}"
+    action = f"Update user: {name}"
     admin_log(3, action, time, user_ip)
     return jsonify(updated), 200
 
@@ -222,6 +222,6 @@ def delete_customer_by_id(customer_id):
     user_ip = request.remote_addr
 
     delete_customer(customer_id)
-    action = f"Delete user {username}"
+    action = f"Delete user: {username}"
     admin_log(3, action, time, user_ip)
     return jsonify({"id": customer_id}), 200

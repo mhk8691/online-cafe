@@ -178,14 +178,6 @@ def delete_user(user_id):
 # CRUD routes
 @app.route("/user/", methods=["GET"])
 def list_user():
-    # range = request.args.get("range")
-    # x = re.split(",", range)
-    # final_range = re.split("]", x[1])[0]
-    # users = get_all_user(int(final_range) + 1)
-    # response = jsonify(users)
-    # response.headers["Access-Control-Expose-Headers"] = "Content-Range"
-    # response.headers["Content-Range"] = len(users)
-    # return response
     range = request.args.get("range")
     x = re.split(",", range)
     final_range = re.split("]", x[1])[0]

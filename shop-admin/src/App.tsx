@@ -15,6 +15,7 @@ import { OrderList } from "./Order";
 import { PaymentList } from "./Payment";
 import { OrderDetailsList } from "./Order_Details";
 import { FeedbackList } from "./Feedback";
+import { LogList } from "./AdminLogs";
 import CustomEditGuesser from "./Custom";
 import productEdit from "./productEdit";
 import { Route } from "react-router-dom";
@@ -62,11 +63,8 @@ export const App = () => (
       show={ShowGuesser}
     />
     <Resource name="payment" list={PaymentList} show={ShowGuesser} />
-    <Resource name="Order_Details" list={OrderDetailsList}  />
-    <Resource
-      name="feedback"
-      list={FeedbackList}
-      show={ShowGuesser}
-    />
+    <Resource name="Order_Details" list={OrderDetailsList} />
+    <Resource name="feedback" list={FeedbackList} show={ShowGuesser} />
+    <Resource name="admin_logs" list={LogList} show={ShowGuesser} />
   </Admin>
 );

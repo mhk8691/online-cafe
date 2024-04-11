@@ -301,13 +301,3 @@ def update_order_by_id(order_id):
     return jsonify(updated), 200
 
 
-# @app.route("/orders/<int:order_id>", methods=["DELETE"])
-# def delete_order_by_id(order_id):
-#     user_ip = request.remote_addr
-#     name = get_order(order_id)
-#     action = f"Delete Order customer name: {name["username"]} status"
-#     admin_log(3, action, time, user_ip)
-#     status = get_order("status")
-#     if status == "Waiting":
-#         delete_order(order_id)
-#     return jsonify({"id": order_id}), 200
