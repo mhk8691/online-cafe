@@ -17,6 +17,24 @@ def get_db_connection():
     conn.row_factory = sqlite3.Row
     return conn
 
+time = datetime.today().strftime("%Y-%m-%d")
+
+
+def admin_log(user_id, action, action_date, ip_address):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute(
+        "INSERT INTO Admin_Logs (user_id,action,action_date,ip_address) VALUES (?,?,?,?)",
+        (
+            user_id,
+            action,
+            action_date,
+            ip_address,
+        ),
+    )
+    conn.commit()
+    conn.close()
+
 
 # Get a shipping by ID
 def get_shipping(address_id):
@@ -113,38 +131,6 @@ def get_all_shipping_filter(name, search, limit):
     return final_shipping
 
 
-# Create a new shipping
-def create_shipping(
-    customer_id,
-    recipient_name,
-    address_line1,
-    address_line2,
-    city,
-    state,
-    postal_code,
-    country,
-):
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute(
-        "INSERT INTO Shipping_Addresses (customer_id,recipient_name, address_line1,address_line2,city,state,postal_code,country) VALUES (?, ?, ?,?,?,?,?,?)",
-        (
-            customer_id,
-            recipient_name,
-            address_line1,
-            address_line2,
-            city,
-            state,
-            postal_code,
-            country,
-        ),
-    )
-    conn.commit()
-    address_id = cur.lastrowid
-    conn.close()
-    return address_id
-
-
 # Update a shipping
 def update_shipping(
     recipient_name,
@@ -238,7 +224,9 @@ def update_shipping_by_id(address_id):
     state = request.json["state"]
     postal_code = request.json["postal_code"]
     country = request.json["country"]
-
+    user_ip = request.remote_addr
+    action = f"Update shipping {recipient_name}"
+    admin_log(3, action, time, user_ip)
     updated = update_shipping(
         recipient_name,
         address_line1,
@@ -252,7 +240,25 @@ def update_shipping_by_id(address_id):
     return jsonify(updated), 200
 
 
+def get_name(shipping_id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute(
+        "SELECT recipient_name from Shipping_Addresses where address_id = ?",
+        (shipping_id,),
+    )
+    username = cur.fetchone()
+
+    for user in username:
+        final_username = user
+    return final_username
+
+
 @app.route("/shipping/<int:address_id>", methods=["DELETE"])
 def delete_shipping_by_id(address_id):
+    user_ip = request.remote_addr
+    name = get_name(address_id)
+    action = f"Delete shipping {name}"
+    admin_log(3, action, time, user_ip)
     delete_shipping(address_id)
     return jsonify({"id": address_id}), 200

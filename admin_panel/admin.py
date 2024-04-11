@@ -17,11 +17,8 @@ import admin_panel.order_details
 import admin_panel.Feedback
 
 
-from flask import Flask, request, jsonify
 
-# در سرور Flask - Python
 
-from flask import Flask, request, jsonify
+
 app = connect_db.app
-
 

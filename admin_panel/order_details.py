@@ -22,26 +22,27 @@ def get_db_connection():
 def get_all_order_details(limit):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute(
-        "SELECT *,name  FROM Order_Details INNER JOIN Products ON Products.product_id =Order_Details.product_id  LIMIT "
-        + str(limit)
-    )
+    cur.execute(f"SELECT *  FROM Order_Details  LIMIT {limit}")
     Order_Details = cur.fetchall()
     final_Order_Details = []
     for order_detail in Order_Details:
-
         cur.execute(
-            "SELECT Customers.username FROM Customers INNER JOIN Orders on Customers.customer_id = Orders.customer_id WHERE order_id = ?",
-            (order_detail[1],),
+            f"SELECT name FROM Products  WHERE product_id = ? LIMIT {limit}",
+            (order_detail[2],),
         )
-        username = cur.fetchone()
-        for name in username:
+        product_name = cur.fetchall()
+        for product in product_name:
+            cur.execute(
+                f"SELECT Customers.username FROM Customers INNER JOIN Orders on Customers.customer_id = Orders.customer_id WHERE order_id = ? ",
+                (order_detail[1],),
+            )
+            username = cur.fetchone()[0]
             final_Order_Details.append(
                 {
                     "id": order_detail[0],
                     "order_id": order_detail[1],
-                    "username": name,
-                    "product_name": order_detail[6],
+                    "username": username,
+                    "product_name": product[0],
                     "quantity": order_detail[3],
                     "unit_price": order_detail[4],
                 }
@@ -96,7 +97,9 @@ def list_order_details():
     x = re.split(",", range)
     final_range = re.split("]", x[1])[0]
     get_filter = request.args.get("filter")
-    order_details = get_all_order_details(int(final_range) + 1)
+    final_range2 = int(final_range) + 1
+    print(final_range2)
+    order_details = get_all_order_details(final_range2)
     response = jsonify(order_details)
     if len(get_filter) > 2:
         name = re.split(r""":""", get_filter)

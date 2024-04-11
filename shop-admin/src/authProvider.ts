@@ -39,8 +39,6 @@ export const authProvider: AuthProvider = {
 
     return Promise.resolve(user);
   },
-};  
+};
 
 export default authProvider;
-
-

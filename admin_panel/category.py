@@ -11,6 +11,23 @@ app = connect_db.app
 cors = CORS(app)
 app.config["UPLOAD_FOLDER"] = "static/img/"
 
+time = datetime.today().strftime("%Y-%m-%d")
+
+def admin_log(user_id, action, action_date, ip_address):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute(
+        "INSERT INTO Admin_Logs (user_id,action,action_date,ip_address) VALUES (?,?,?,?)",
+        (
+            user_id,
+            action,
+            action_date,
+            ip_address,
+        ),
+    )
+    conn.commit()
+    conn.close()
+
 
 def get_db_connection():
     conn = sqlite3.connect("onlineShop.db")
@@ -160,8 +177,10 @@ def add_category():
     parent_category_id = request.json["parent_category_id"]
 
     picture = request.json["picture"]
-    time = datetime.today().strftime("%Y-%m-%d")
+    user_ip = request.remote_addr
 
+    action = f"Add Category {name}"
+    admin_log(3, action, time, user_ip)
     category_id = create_category(
         name, description, parent_category_id, time, "picture.read()"
     )
@@ -181,12 +200,31 @@ def update_category_by_id(category_id):
     name = request.json["name"]
     description = request.json["description"]
     parent_category_id = request.json["parent_category_id"]
-
+    user_ip = request.remote_addr
+    action = f"Update Category {name}"
+    admin_log(3, action, time, user_ip)
     updated = update_category(name, description, parent_category_id, category_id)
     return jsonify(updated), 200
 
 
+def get_name(category_id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute(
+        "SELECT category_name from Categories where category_id = ?", (category_id,)
+    )
+    username = cur.fetchone()
+
+    for user in username:
+        final_username = user
+    return final_username
+
+
 @app.route("/category/<int:category_id>", methods=["DELETE"])
 def delete_category_by_id(category_id):
+    user_ip = request.remote_addr
+    name = get_name(category_id)
+    action = f"Delete Category {name}"
+    admin_log(3, action, time, user_ip)
     delete_category(category_id)
     return jsonify({"id": category_id}), 200

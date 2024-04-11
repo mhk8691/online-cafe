@@ -42,8 +42,7 @@ export const FeedbackList = () => (
       <TextField source="comment" />
       <DateField source="feedback_date" />
       {/* <ImageField source="picture" /> */}
-      <EditButton label="" />
-      <ShowButton label="" />
+      <ShowButton label="show" />
     </Datagrid>
   </List>
 );

@@ -38,8 +38,7 @@ export const OrderDetailsList = () => (
       <TextField source="product_name" />
       <NumberField source="quantity" />
       <NumberField source="unit_price" />
-      <EditButton label="edit" />
-      <ShowButton label="show" />
+     
     </Datagrid>
   </List>
 );

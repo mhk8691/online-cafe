@@ -17,6 +17,24 @@ def get_db_connection():
     conn.row_factory = sqlite3.Row
     return conn
 
+time = datetime.today().strftime("%Y-%m-%d")
+
+
+def admin_log(user_id, action, action_date, ip_address):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute(
+        "INSERT INTO Admin_Logs (user_id,action,action_date,ip_address) VALUES (?,?,?,?)",
+        (
+            user_id,
+            action,
+            action_date,
+            ip_address,
+        ),
+    )
+    conn.commit()
+    conn.close()
+
 
 # Get a user by ID
 def get_order(order_id):
@@ -267,6 +285,11 @@ def update_order_by_id(order_id):
         time,
         "Unread",
     )
+    name = get_order(order_id)
+    
+    user_ip = request.remote_addr
+    action = f"Update Order name :{name["username"]} status :{status}"
+    admin_log(3, action, time, user_ip)
     updated = update_order(
         status,
         order_id,
@@ -276,5 +299,9 @@ def update_order_by_id(order_id):
 
 @app.route("/orders/<int:order_id>", methods=["DELETE"])
 def delete_order_by_id(order_id):
+    user_ip = request.remote_addr
+    name = get_order(order_id)
+    action = f"Delete Order customer name: {name["username"]} status"
+    admin_log(3, action, time, user_ip)
     delete_order(order_id)
     return jsonify({"id": order_id}), 200

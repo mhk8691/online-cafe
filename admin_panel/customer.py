@@ -18,6 +18,25 @@ def get_db_connection():
     return conn
 
 
+time = datetime.today().strftime("%Y-%m-%d")
+
+
+def admin_log(user_id, action, action_date, ip_address):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute(
+        "INSERT INTO Admin_Logs (user_id,action,action_date,ip_address) VALUES (?,?,?,?)",
+        (
+            user_id,
+            action,
+            action_date,
+            ip_address,
+        ),
+    )
+    conn.commit()
+    conn.close()
+
+
 # Get a customer by ID
 def get_customer(customer_id):
     conn = get_db_connection()
@@ -137,8 +156,11 @@ def list_customer():
         regex_filter = re.split(rf'"{name2[0]}":"(.*?)"', get_filter)
 
         response = jsonify(
-            get_all_customers_filter(name2[0], regex_filter[1],int(final_range) + 1,),
-            
+            get_all_customers_filter(
+                name2[0],
+                regex_filter[1],
+                int(final_range) + 1,
+            ),
         )
 
     response.headers["Access-Control-Expose-Headers"] = "Content-Range"
@@ -153,8 +175,10 @@ def add_customer():
     email = request.json["email"]
     password = request.json["password"]
     phone = request.json["phone"]
-    time = datetime.today().strftime("%Y-%m-%d")
+    user_ip = request.remote_addr
 
+    action = f"Add user {name}"
+    admin_log(3, action, time, user_ip)
     customer_id = create_customer(name, password, email, phone, time)
     return jsonify(get_customer(customer_id)), 201
 
@@ -173,11 +197,31 @@ def update_customer_by_id(customer_id):
     password = request.json["password"]
     email = request.json["email"]
     phone = request.json["phone"]
+    user_ip = request.remote_addr
+
     updated = update_customer(customer_id, name, password, email, phone)
+    action = f"Update user {name}"
+    admin_log(3, action, time, user_ip)
     return jsonify(updated), 200
+
+
+def get_username(customer_id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT username from Customers where customer_id = ?", (customer_id,))
+    username = cur.fetchone()
+
+    for user in username:
+        final_username = user
+    return final_username
 
 
 @app.route("/customer/<int:customer_id>", methods=["DELETE"])
 def delete_customer_by_id(customer_id):
+    username = get_username(customer_id)
+    user_ip = request.remote_addr
+
     delete_customer(customer_id)
+    action = f"Delete user {username}"
+    admin_log(3, action, time, user_ip)
     return jsonify({"id": customer_id}), 200

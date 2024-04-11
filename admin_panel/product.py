@@ -22,6 +22,25 @@ def get_db_connection():
     return conn
 
 
+def admin_log(user_id, action, action_date, ip_address):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute(
+        "INSERT INTO Admin_Logs (user_id,action,action_date,ip_address) VALUES (?,?,?,?)",
+        (
+            user_id,
+            action,
+            action_date,
+            ip_address,
+        ),
+    )
+    conn.commit()
+    conn.close()
+
+
+time = datetime.today().strftime("%Y-%m-%d")
+
+
 def get_data_from_database():
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -236,6 +255,10 @@ def add_product():
     # image = request.json["pictures"]
     # url = image["src"] + "/" + image["title"]
     # print(image)
+    user_ip = request.remote_addr
+
+    action = f"Add product {name}"
+    admin_log(3, action, time, user_ip)
     print(categories_id)
     product_id = create_product(name, description, price, categories_id, "image")
     return (
@@ -274,11 +297,30 @@ def update_product_by_id(product_id):
     description = request.json["description"]
     price = request.json["price"]
     categories_id = request.json["categories_id"]
+    user_ip = request.remote_addr
+
+    action = f"Update product {name}"
+    admin_log(3, action, time, user_ip)
     updated = update_product(name, description, price, categories_id, product_id)
     return jsonify(updated), 200
 
 
+def get_name(product_id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT name from Products where product_id = ?", (product_id,))
+    name = cur.fetchone()
+
+    for name2 in name:
+        final_name = name2
+    return final_name
+
+
 @app.route("/product/<int:product_id>", methods=["DELETE"])
 def delete_product_by_id(product_id):
+    user_ip = request.remote_addr
+    name = get_name(product_id)
+    action = f"Delete product {name}"
+    admin_log(3, action, time, user_ip)
     delete_product(product_id)
     return jsonify({"id": product_id}), 200
