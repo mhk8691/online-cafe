@@ -17,6 +17,7 @@ const CustomEdit: React.FC<CustomEditProps> = (props) => (
           { id: "Confirmation", name: "Confirmation" },
           { id: "Send", name: "Send" },
           { id: "Delivery", name: "Delivery" },
+          { id: "Cancel", name: "Cancel" },
         ]}
       />
     </SimpleForm>

@@ -308,6 +308,38 @@ def Delivery_status():
     return order_list2_Delivery
 
 
+def Cancel_status():
+    connection.execute(
+        """SELECT Products.product_id,Products.name,Products.description,Products.price,Products.picture ,Order_Details.quantity,Orders.order_id
+        FROM Order_Details 
+        INNER JOIN Products 
+        on Products.product_id = Order_Details.product_id
+        INNER JOIN Orders 
+        on Orders.order_id = Order_Details.order_id
+        INNER JOIN Customers 
+        on Customers.customer_id = Orders.customer_id
+        WHERE Orders.customer_id = ? 
+        AND  Orders.status = ?
+        """,
+        (customer_information[0], "Cancel"),
+    )
+    order_list_Cancel = connection.fetchall()
+    order_list2_Cancel = []
+    for order in order_list_Cancel:
+        order_list2_Cancel.append(
+            {
+                "product_id": order[0],
+                "name": order[1],
+                "description": order[2],
+                "price": order[3],
+                "picture": base64.b64encode(order[4]).decode("utf-8"),
+                "quantity": order[5],
+                "order_id": order[6],
+            }
+        )
+    return order_list2_Cancel
+
+
 def feedback(order_id, rating, comment):
 
     connection.execute(
@@ -329,6 +361,7 @@ def order_history():
     order_list_confirmation = confirmation_status()
     order_list_send = Send_status()
     order_list_Delivery = Delivery_status()
+    order_list_Cancel = Cancel_status()
     notification_user2 = notification_Unread()
 
     if len(notification_user2) == 0:
@@ -349,6 +382,7 @@ def order_history():
         order_list_confirmation=order_list_confirmation,
         order_list_send=order_list_send,
         order_list_Delivery=order_list_Delivery,
+        order_list_Cancel=order_list_Cancel,
         display=display,
     )
 

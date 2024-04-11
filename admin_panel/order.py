@@ -205,18 +205,19 @@ def update_order(
     return get_order(order_id)
 
 
-# Delete a user
-def delete_order(order_id):
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute("DELETE FROM Orders WHERE order_id = ?", (order_id,))
-    cur.execute(
-        "DELETE FROM Order_Details WHERE Order_Details.order_id = ?", (order_id,)
-    )
-    cur.execute("DELETE FROM Payments WHERE Payments.order_id = ?", (order_id,))
-    cur.execute("DELETE FROM Feedback WHERE Feedback.order_id = ?", (order_id,))
-    conn.commit()
-    conn.close()
+
+# # Delete a user
+# def delete_order(order_id):
+#     conn = get_db_connection()
+#     cur = conn.cursor()
+#     cur.execute("DELETE FROM Orders WHERE order_id = ?", (order_id,))
+#     cur.execute(
+#         "DELETE FROM Order_Details WHERE Order_Details.order_id = ?", (order_id,)
+#     )
+#     cur.execute("DELETE FROM Payments WHERE Payments.order_id = ?", (order_id,))
+#     cur.execute("DELETE FROM Feedback WHERE Feedback.order_id = ?", (order_id,))
+#     conn.commit()
+#     conn.close()
 
 
 @app.route("/orders/", methods=["GET"])
@@ -277,6 +278,8 @@ def update_order_by_id(order_id):
         statusToPershian = "تایید"
     elif status == "Delivery":
         statusToPershian = "تحویل"
+    elif status == "Cancel":
+        statusToPershian = "لغو"
     message = f"سفارش شما در حالت {statusToPershian} قرار گرفت"
 
     notification(
@@ -290,6 +293,7 @@ def update_order_by_id(order_id):
     user_ip = request.remote_addr
     action = f"Update Order name :{name["username"]} status :{status}"
     admin_log(3, action, time, user_ip)
+    
     updated = update_order(
         status,
         order_id,
@@ -297,11 +301,13 @@ def update_order_by_id(order_id):
     return jsonify(updated), 200
 
 
-@app.route("/orders/<int:order_id>", methods=["DELETE"])
-def delete_order_by_id(order_id):
-    user_ip = request.remote_addr
-    name = get_order(order_id)
-    action = f"Delete Order customer name: {name["username"]} status"
-    admin_log(3, action, time, user_ip)
-    delete_order(order_id)
-    return jsonify({"id": order_id}), 200
+# @app.route("/orders/<int:order_id>", methods=["DELETE"])
+# def delete_order_by_id(order_id):
+#     user_ip = request.remote_addr
+#     name = get_order(order_id)
+#     action = f"Delete Order customer name: {name["username"]} status"
+#     admin_log(3, action, time, user_ip)
+#     status = get_order("status")
+#     if status == "Waiting":
+#         delete_order(order_id)
+#     return jsonify({"id": order_id}), 200
