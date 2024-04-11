@@ -8,7 +8,6 @@ import { ProductCreate } from "./ProductCreate";
 import { CategoriesList } from "./Categories";
 import { CategoriesCreate } from "./CategoriesCreate";
 import { ShippingList } from "./Shipping";
-import { ShippingCreate } from "./ShippingCreate";
 import { UserCreate } from "./UserCreate";
 import { feedbackCreate } from "./Respond";
 import { UserList } from "./User";
@@ -52,7 +51,6 @@ export const App = () => (
       list={ShippingList}
       edit={EditGuesser}
       show={ShowGuesser}
-      create={ShippingCreate}
     />
     <Resource
       name="user"

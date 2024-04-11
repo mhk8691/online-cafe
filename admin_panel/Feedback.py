@@ -74,7 +74,6 @@ def get_all_feedback(limit):
     return final_feedback
 
 
-# Get all feedback
 
 
 def get_all_feedback_filter(name, search, limit):
@@ -87,12 +86,7 @@ def get_all_feedback_filter(name, search, limit):
     feedbacks = cur.fetchall()
     final_feedback = []
     for feedback in feedbacks:
-        # cur.execute(
-        #     "SELECT Customers.username FROM Customers WHERE customer_id = ? AND {name} = ?",
-        #     (feedback[1], search),
-        # )
-        # username = cur.fetchone()
-        # for username2 in username:
+      
 
         final_feedback.append(
             {

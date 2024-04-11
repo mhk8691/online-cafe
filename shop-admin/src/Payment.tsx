@@ -45,7 +45,7 @@ export const PaymentList = () => (
       <NumberField source="amount" />
       <DateField source="payment_date"/>
       {/* <ImageField source="picture" /> */}
-      <ShowButton label="" />
+      <ShowButton label="show" />
     </Datagrid>
   </List>
 );

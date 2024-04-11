@@ -99,6 +99,7 @@ def cart(product_id):
     conn.commit()
 
 
+# محصولات مشابه
 def similar_products(product_id, category_id):
     connection.execute(
         "SELECT * FROM Products INNER JOIN Categories ON Products.categories_id = Categories.category_id WHERE categories_id = ? AND product_id != ? LIMIT 4 ",
@@ -214,30 +215,35 @@ def show_cart():
     return carts
 
 
+def number_of_cart():
+    if request.method == "POST":
+        number = request.form["number"]
+        product_id = request.form["product_id"]
+        if int(number) >= 1:
+            connection.execute(
+                "UPDATE cart SET quantity = ? WHERE product_id = ? ",
+                (number, product_id),
+            )
+            conn.commit()
+        elif int(number) == 0:
+
+            connection.execute(
+                "DELETE FROM cart WHERE product_id = ? ",
+                (product_id,),
+            )
+            conn.commit()
+
+
 # View shopping cart
 @app.route("/cart/", methods=["POST", "GET"])
 def user_cart():
     if len(customer_information) == 0:
         return redirect(url_for("login"))
     else:
-        if request.method == "POST":
-            number = request.form["number"]
-            product_id = request.form["product_id"]
-            if int(number) >= 1:
-                connection.execute(
-                    "UPDATE cart SET quantity = ? WHERE product_id = ? ",
-                    (number, product_id),
-                )
-                conn.commit()
-            elif int(number) == 0:
-
-                connection.execute(
-                    "DELETE FROM cart WHERE product_id = ? ",
-                    (product_id,),
-                )
-                conn.commit()
+        number_of_cart()
 
         carts = show_cart()
+
         if len(carts) == 0:
             display = "d-none"
         else:
@@ -258,17 +264,28 @@ def user_cart():
                 }
             )
         list_price2 = Totalprice()
-        query = "SELECT * FROM Shipping_Addresses WHERE customer_id = {}".format(
-            customer_information[0]
+        query = (
+            "SELECT * FROM Shipping_Addresses WHERE customer_id = {} LIMIT 1".format(
+                customer_information[0]
+            )
         )
         connection.execute(query)
         list_address = connection.fetchall()
-        if len(list_address) == 0:
-            display_address = "#exampleModal"
-            display_address2 = "modal"
-        else:
-            display_address = "http://localhost:5000/checkout/"
-            display_address2 = ""
+        shipping_address_defult = []
+        if len(list_address) != 0:
+            for list in list_address:
+                shipping_address_defult.append(
+                    {
+                        "address_line1": list[3],
+                        "address_line2": list[4],
+                        "city": list[5],
+                        "state": list[6],
+                        "postal_code": list[7],
+                        "country": list[8],
+                    }
+                )
+
+            print(shipping_address_defult)
 
         notification_user2 = notification_Unread()
 
@@ -282,7 +299,6 @@ def user_cart():
             d="d-none",
             list_price2=list_price2,
             display=display,
-            display_address=display_address,
-            display_address2=display_address2,
             display_not=display_not,
+            shipping_address_defult=shipping_address_defult,
         )

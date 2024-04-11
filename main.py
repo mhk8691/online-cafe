@@ -1,4 +1,4 @@
-from flask import Flask, redirect, url_for, request, render_template, jsonify,send_file
+from flask import Flask, redirect, url_for, request, render_template, jsonify, send_file
 import sqlite3
 import connect_db as connect_db
 import user_acount as user_acount
@@ -7,6 +7,9 @@ import base64
 import product as product
 from datetime import datetime
 import os
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
+from reportlab.lib import colors
 
 conn = sqlite3.connect("onlineShop.db", check_same_thread=False)
 conn.row_factory = sqlite3.Row
@@ -75,6 +78,7 @@ def home():
         )
 
 
+# قیمت نهایی و تعداد کالا
 def Totalprice():
     sql = """
         SELECT SUM(quantity * Products.price), SUM(quantity)
@@ -95,32 +99,8 @@ def Totalprice():
     return list_price2
 
 
-@app.route("/checkout/", methods=["POST", "GET"])
-def checkout():
-    if request.method == "POST":
-        recipient_name = request.form["recipient_name"]
-        address_line1 = request.form["address_line1"]
-        address_line2 = request.form["address_line2"]
-        city = request.form["city"]
-        state = request.form["state"]
-        postal_code = request.form["postal_code"]
-        country = request.form["country"]
-        connection.execute(
-            """ INSERT INTO Shipping_Addresses(customer_id,recipient_name,address_line1,address_line2,city,state,postal_code,country)
-            VALUES (?,?,?,?,?,?,?,?)  """,
-            (
-                customer_information[0],
-                recipient_name,
-                address_line1,
-                address_line2,
-                city,
-                state,
-                postal_code,
-                country,
-            ),
-        )
-        conn.commit()
-    list_price2 = Totalprice()
+# انتقال کالا از سبد خرید به تسویه حساب
+def Cart_to_checkout():
     connection.execute(
         """SELECT Products.product_id,Products.name,Products.description,Products.price,Products.picture,quantity
                 from Products
@@ -145,9 +125,47 @@ def checkout():
                 "quantity": cart[5],
             }
         )
-    return render_template(
-        "pages/checkout.html", product_list=product_list, list_price2=list_price2
-    )
+    return product_list
+
+
+# ثبت آدرس حمل و نقل
+def shipping_address():
+    if request.method == "POST":
+        recipient_name = request.form["recipient_name"]
+        address_line1 = request.form["address_line1"]
+        address_line2 = request.form["address_line2"]
+        city = request.form["city"]
+        state = request.form["state"]
+        postal_code = request.form["postal_code"]
+        country = request.form["country"]
+        connection.execute(
+            """ INSERT INTO Shipping_Addresses(customer_id,recipient_name,address_line1,address_line2,city,state,postal_code,country)
+            VALUES (?,?,?,?,?,?,?,?)  """,
+            (
+                customer_information[0],
+                recipient_name,
+                address_line1,
+                address_line2,
+                city,
+                state,
+                postal_code,
+                country,
+            ),
+        )
+        conn.commit()
+
+
+@app.route("/checkout/", methods=["POST", "GET"])
+def checkout():
+    if len(customer_information) == 0:
+        return redirect(url_for("login"))
+    else:
+        shipping_address()
+        list_price2 = Totalprice()
+        product_list = Cart_to_checkout()
+        return render_template(
+            "pages/checkout.html", product_list=product_list, list_price2=list_price2
+        )
 
 
 show_cart = product.show_cart
@@ -162,17 +180,6 @@ def delete_cart():
         {"customer_id": int(customer_information[0])},
     )
     conn.commit()
-
-
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
-
-
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
-from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.lib import colors
-
-from reportlab.platypus import Paragraph
 
 
 def create_pdf_from_object(data_list, file_name="Factor.pdf"):
@@ -230,98 +237,101 @@ def create_pdf_from_object(data_list, file_name="Factor.pdf"):
 
 @app.route("/end-payment/<string:payment_method>/")
 def end_payment(payment_method):
-    time = datetime.today().strftime("%Y-%m-%d")
-    connection.execute(
-        """
-    SELECT SUM(quantity * Products.price)
-    FROM cart
-    INNER JOIN Products ON cart.product_id = Products.product_id
-    WHERE customer_id = ?
-    """,
-        (int(customer_information[0]),),
-    )
-    quantity = connection.fetchone()
-    for q in quantity:
-        quantity2 = q
-
-    connection.execute(
-        "INSERT INTO Orders (customer_id,order_date,total_amount,status) VALUES (?,?,?,?)",
-        (int(customer_information[0]), time, quantity2, "Waiting"),
-    )
-
-    product_list = []
-    carts = show_cart()
-    for cart in carts:
-
-        product_list.append(
-            {
-                "product_id": cart[0],
-                "name": cart[1],
-                "description": cart[2],
-                "price": cart[3],
-                "picture": base64.b64encode(cart[4]).decode("utf-8"),
-                "quantity": cart[5],
-            }
+    if len(customer_information) == 0:
+        return redirect(url_for("login"))
+    else:
+        time = datetime.today().strftime("%Y-%m-%d")
+        connection.execute(
+            """
+        SELECT SUM(quantity * Products.price)
+        FROM cart
+        INNER JOIN Products ON cart.product_id = Products.product_id
+        WHERE customer_id = ?
+        """,
+            (int(customer_information[0]),),
         )
-
-    connection.execute(
-        """
-    SELECT MAX(order_id)
-    FROM Orders
-    
-    WHERE Orders.customer_id = ?
-    """,
-        (int(customer_information[0]),),
-    )
-
-    order_id_payment = connection.fetchone()
-    for o in order_id_payment:
-        order_id_payment2 = o
-
-    for product_list2 in range(len(product_list)):
+        quantity = connection.fetchone()
+        for q in quantity:
+            quantity2 = q
 
         connection.execute(
-            "INSERT INTO Order_Details (order_id,product_id,quantity,unit_price) VALUES (?,?,?,?)",
-            (
-                order_id_payment2,
-                product_list[product_list2]["product_id"],
-                product_list[product_list2]["quantity"],
-                product_list[product_list2]["price"],
-            ),
+            "INSERT INTO Orders (customer_id,order_date,total_amount,status) VALUES (?,?,?,?)",
+            (int(customer_information[0]), time, quantity2, "Waiting"),
         )
 
-    connection.execute(
-        "INSERT INTO Payments (order_id,payment_method,amount,payment_date) VALUES (?,?,?,?)",
-        (order_id_payment2, payment_method, quantity2, time),
-    )
-    delete_cart()
+        product_list = []
+        carts = show_cart()
+        for cart in carts:
 
-    conn.commit()
-    connection.execute(
-        """
-        SELECT order_id,Products.name,quantity ,unit_price,(quantity * unit_price) as total_price 
-        FROM Order_Details 
-        INNER JOIN Products 
-        on Products.product_id = Order_Details.product_id  
-        WHERE order_id = ?
+            product_list.append(
+                {
+                    "product_id": cart[0],
+                    "name": cart[1],
+                    "description": cart[2],
+                    "price": cart[3],
+                    "picture": base64.b64encode(cart[4]).decode("utf-8"),
+                    "quantity": cart[5],
+                }
+            )
+
+        connection.execute(
+            """
+        SELECT MAX(order_id)
+        FROM Orders
+        
+        WHERE Orders.customer_id = ?
         """,
-        (order_id_payment2,),
-    )
-    order_details = connection.fetchall()
-    order_details_list = []
-    for order_detail in order_details:
-        order_details_list.append(
-            {
-                "order_id": str(order_detail[0]),
-                "product_name": str(order_detail[1]),
-                "quantity": str(order_detail[2]),
-                "unit_price": str(order_detail[3]),
-                "total_price": str(order_detail[4]),
-            }
+            (int(customer_information[0]),),
         )
 
-    create_pdf_from_object(order_details_list)
-    return render_template("pages/end-payment.html")
+        order_id_payment = connection.fetchone()
+        for o in order_id_payment:
+            order_id_payment2 = o
+
+        for product_list2 in range(len(product_list)):
+
+            connection.execute(
+                "INSERT INTO Order_Details (order_id,product_id,quantity,unit_price) VALUES (?,?,?,?)",
+                (
+                    order_id_payment2,
+                    product_list[product_list2]["product_id"],
+                    product_list[product_list2]["quantity"],
+                    product_list[product_list2]["price"],
+                ),
+            )
+
+        connection.execute(
+            "INSERT INTO Payments (order_id,payment_method,amount,payment_date) VALUES (?,?,?,?)",
+            (order_id_payment2, payment_method, quantity2, time),
+        )
+        delete_cart()
+        # چاپ فاکتور خرید
+        conn.commit()
+        connection.execute(
+            """
+            SELECT order_id,Products.name,quantity ,unit_price,(quantity * unit_price) as total_price 
+            FROM Order_Details 
+            INNER JOIN Products 
+            on Products.product_id = Order_Details.product_id  
+            WHERE order_id = ?
+            """,
+            (order_id_payment2,),
+        )
+        order_details = connection.fetchall()
+        order_details_list = []
+        for order_detail in order_details:
+            order_details_list.append(
+                {
+                    "order_id": str(order_detail[0]),
+                    "product_name": str(order_detail[1]),
+                    "quantity": str(order_detail[2]),
+                    "unit_price": str(order_detail[3]),
+                    "total_price": str(order_detail[4]),
+                }
+            )
+
+        create_pdf_from_object(order_details_list)
+        return render_template("pages/end-payment.html")
 
 
 @app.route("/download_pdf")

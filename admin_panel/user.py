@@ -93,6 +93,28 @@ def get_all_user(limit):
         )
     conn.close()
     return final_users
+# Get all user
+def get_all_user_filter(name, search, limit):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute(
+        f"SELECT * FROM Users WHERE {name} = ? LIMIT {limit}",
+        (search,),
+    )
+    users = cur.fetchall()
+    final_users = []
+    for user in users:
+        final_users.append(
+            {
+                "id": user[0],
+                "username": user[1],
+                "password": user[2],
+                "email": user[3],
+                "role": user[4],
+            }
+        )
+    conn.close()
+    return final_users
 
 
 # Create a new user
@@ -156,13 +178,37 @@ def delete_user(user_id):
 # CRUD routes
 @app.route("/user/", methods=["GET"])
 def list_user():
+    # range = request.args.get("range")
+    # x = re.split(",", range)
+    # final_range = re.split("]", x[1])[0]
+    # users = get_all_user(int(final_range) + 1)
+    # response = jsonify(users)
+    # response.headers["Access-Control-Expose-Headers"] = "Content-Range"
+    # response.headers["Content-Range"] = len(users)
+    # return response
     range = request.args.get("range")
     x = re.split(",", range)
     final_range = re.split("]", x[1])[0]
-    users = get_all_user(int(final_range) + 1)
-    response = jsonify(users)
+    get_filter = request.args.get("filter")
+    user = get_all_user(int(final_range) + 1)
+    response = jsonify(user)
+    if len(get_filter) > 2:
+        name = re.split(r""":""", get_filter)
+        name2 = re.split(r"""^{\"""", name[0])
+        name2 = re.split(r"""\"$""", name2[1])
+        regex_filter = re.split(rf'"{name2[0]}":"(.*?)"', get_filter)
+
+        response = jsonify(
+            get_all_user_filter(
+                name2[0],
+                regex_filter[1],
+                int(final_range) + 1,
+            ),
+        )
+
     response.headers["Access-Control-Expose-Headers"] = "Content-Range"
-    response.headers["Content-Range"] = len(users)
+    response.headers["Content-Range"] = len(user)
+
     return response
 
 

@@ -79,6 +79,40 @@ def get_all_shipping(limit):
     return final_shipping
 
 
+def get_all_shipping_filter(name, search, limit):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute(
+        f"SELECT * FROM Shipping_Addresses WHERE {name} = ? LIMIT {limit}",
+        (search,),
+    )
+    shippings = cur.fetchall()
+    final_shipping = []
+    for shipping in shippings:
+        cur.execute(
+            "SELECT Customers.username FROM Customers WHERE customer_id = ?",
+            (shipping[1],),
+        )
+        username = cur.fetchone()
+        for username2 in username:
+
+            final_shipping.append(
+                {
+                    "id": shipping[0],
+                    "customer_name": username2,
+                    "recipient_name": shipping[2],
+                    "address_line1": shipping[3],
+                    "address_line2": shipping[4],
+                    "city": shipping[5],
+                    "state": shipping[6],
+                    "postal_code": shipping[7],
+                    "country": shipping[8],
+                }
+            )
+    conn.close()
+    return final_shipping
+
+
 # Create a new shipping
 def create_shipping(
     customer_id,
@@ -157,38 +191,34 @@ def delete_shipping(address_id):
 # CRUD routes
 @app.route("/shipping/", methods=["GET"])
 def list_shipping():
+    
     range = request.args.get("range")
     x = re.split(",", range)
     final_range = re.split("]", x[1])[0]
-    shippings = get_all_shipping(int(final_range) + 1)
-    response = jsonify(shippings)
+    get_filter = request.args.get("filter")
+    shipping = get_all_shipping(int(final_range) + 1)
+    response = jsonify(shipping)
+    if len(get_filter) > 2:
+        name = re.split(r""":""", get_filter)
+        name2 = re.split(r"""^{\"""", name[0])
+        name2 = re.split(r"""\"$""", name2[1])
+        regex_filter = re.split(rf'"{name2[0]}":"(.*?)"', get_filter)
+
+        response = jsonify(
+            get_all_shipping_filter(
+                name2[0],
+                regex_filter[1],
+                int(final_range) + 1,
+            ),
+        )
+
     response.headers["Access-Control-Expose-Headers"] = "Content-Range"
-    response.headers["Content-Range"] = len(shippings)
+    response.headers["Content-Range"] = len(shipping)
+
     return response
 
 
 @app.route("/shipping", methods=["POST"])
-def add_shipping():
-    customer_id = request.json["customer_id"]
-    recipient_name = request.json["recipient_name"]
-    address_line1 = request.json["address_line1"]
-    address_line2 = request.json["address_line2"]
-    city = request.json["city"]
-    state = request.json["state"]
-    postal_code = request.json["postal_code"]
-    country = request.json["country"]
-
-    shipping_id = create_shipping(
-        customer_id,
-        recipient_name,
-        address_line1,
-        address_line2,
-        city,
-        state,
-        postal_code,
-        country,
-    )
-    return jsonify(get_shipping(shipping_id)), 201
 
 
 @app.route("/shipping/<int:address_id>", methods=["GET"])

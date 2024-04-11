@@ -20,8 +20,9 @@ import { useEffect, useState, ReactElement } from "react";
 import { EditButton, Edit, SimpleForm } from "react-admin";
 
 const CustomerFilters = [
-  <SearchInput source="name" alwaysOn />,
-  <TextInput label="email" source="email" defaultValue="irmrbug@gmail.com" />,
+  <SearchInput source="username" alwaysOn placeholder="customer name" />,
+  <TextInput label="status" source="status" placeholder="status" />,
+  <TextInput label="date" source="order_date" placeholder="date" />,
 ];
 const ListToolbar = () => (
   <Stack direction="row" justifyContent="space-between">
@@ -42,8 +43,8 @@ export const OrderList = () => (
       <NumberField source="total_amount" />
       <TextField source="status" />
       <TextField source="quantity" />
-      <EditButton label="" />
-      <ShowButton label="" />
+      <EditButton label="edit" />
+      <ShowButton label="show" />
     </Datagrid>
   </List>
 );

@@ -20,17 +20,13 @@ import {
 import { Stack } from "@mui/material";
 import { useEffect, useState } from "react";
 
-const CustomerFilters = [
-  <SearchInput source="name" alwaysOn />,
-  <TextInput label="email" source="email" defaultValue="irmrbug@gmail.com" />,
+const ProductFilters = [
+  <SearchInput source="name" alwaysOn placeholder="product name"/>,
 ];
 const ListToolbar = () => (
   <Stack direction="row" justifyContent="space-between">
-    <FilterForm filters={CustomerFilters} />
-    <div>
-      <FilterButton filters={CustomerFilters} />
-      <CreateButton />
-    </div>
+    <FilterForm filters={ProductFilters} />
+    
   </Stack>
 );
 
@@ -54,8 +50,8 @@ export const ProductList = () => (
           },
         }}
       />
-      <EditButton label="" />
-      <ShowButton label="" />
+      <EditButton label="Edit" />
+      <ShowButton label="Show" />
     </Datagrid>
   </List>
 );

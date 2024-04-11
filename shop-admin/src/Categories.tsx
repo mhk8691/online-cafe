@@ -14,22 +14,15 @@ import {
   DateField,
   ImageField,
   EditButton,
-ShowButton
+  ShowButton,
 } from "react-admin";
 import { Stack } from "@mui/material";
 import { blob } from "stream/consumers";
 
-const CustomerFilters = [
-  <SearchInput source="name" alwaysOn />,
-  <TextInput label="email" source="email" defaultValue="irmrbug@gmail.com" />,
-];
+const CustomerFilters = [<SearchInput source="category_name" alwaysOn />];
 const ListToolbar = () => (
   <Stack direction="row" justifyContent="space-between">
     <FilterForm filters={CustomerFilters} />
-    <div>
-      <FilterButton filters={CustomerFilters} />
-      <CreateButton />
-    </div>
   </Stack>
 );
 export const CategoriesList = () => (
@@ -42,8 +35,8 @@ export const CategoriesList = () => (
       <DateField source="created_at" />
       <TextField source="description" />
       <ImageField source="picture" />
-      <EditButton label="" />
-      <ShowButton label="" />
+      <EditButton label="Edit" />
+      <ShowButton label="Show" />
     </Datagrid>
   </List>
 );

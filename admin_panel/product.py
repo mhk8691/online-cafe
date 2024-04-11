@@ -120,6 +120,38 @@ def get_all_product(limit):
     return final_products
 
 
+def get_all_product_filter(name, search, limit):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute(
+        f"SELECT * FROM Products WHERE {name} = ? LIMIT {limit}",
+        (search,),
+    )
+    products = cur.fetchall()
+    final_products = []
+    for product in products:
+        # picture_base64 = base64.b64encode(product[4]).decode("utf-8")
+        cur.execute(
+            "SELECT Categories.category_name FROM Categories WHERE category_id = ?",
+            (product[5],),
+        )
+        name = cur.fetchone()
+        for name2 in name:
+
+            final_products.append(
+                {
+                    "id": product[0],
+                    "name": product[1],
+                    "description": product[2],
+                    "price": product[3],
+                    # "picture": picture_base64,
+                    "category_name": name2,
+                }
+            )
+    conn.close()
+    return final_products
+
+
 # Create a new product
 def create_product(name, description, price, categories_id, picture):
 
@@ -168,14 +200,29 @@ def delete_product(product_id):
 # CRUD routes
 @app.route("/product/", methods=["GET"])
 def list_product():
+
     range = request.args.get("range")
     x = re.split(",", range)
     final_range = re.split("]", x[1])[0]
-    products = get_all_product(int(final_range) + 1)
-    response = jsonify(products)
+    get_filter = request.args.get("filter")
+    product = get_all_product(int(final_range) + 1)
+    response = jsonify(product)
+    if len(get_filter) > 2:
+        name = re.split(r""":""", get_filter)
+        name2 = re.split(r"""^{\"""", name[0])
+        name2 = re.split(r"""\"$""", name2[1])
+        regex_filter = re.split(rf'"{name2[0]}":"(.*?)"', get_filter)
+
+        response = jsonify(
+            get_all_product_filter(
+                name2[0],
+                regex_filter[1],
+                int(final_range) + 1,
+            ),
+        )
+
     response.headers["Access-Control-Expose-Headers"] = "Content-Range"
-    response.headers["Content-Range"] = len(products)
-    save_data_route()
+    response.headers["Content-Range"] = len(product)
 
     return response
 

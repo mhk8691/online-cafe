@@ -9,7 +9,9 @@
 </style>
 
 {% endblock head %} {% block body %}
-<nav class="navbar navbar-expand-lg bg-body-dark mt-2 mx-3 sticky-top bg-dark bg-opacity-75 py-3">
+<nav
+  class="navbar navbar-expand-lg bg-body-dark mt-2 mx-3 sticky-top bg-dark bg-opacity-75 py-3"
+>
   <div class="container-fluid d-flex align-items-center">
     <a class="navbar-brand d-none d-lg-block" href="#">کافی شاپ</a>
     <button
@@ -181,9 +183,9 @@
         </div>
         <div class="mt-lg-0 mt-5 {{display}}">
           <a
-            href="{{display_address}}"
+            href="#exampleModal"
             class="btn btn-success"
-            data-bs-toggle="{{display_address2}}"
+            data-bs-toggle="modal"
           >
             تایید و تکمیل سفارش
           </a>
@@ -233,6 +235,7 @@
                       id="address_line1"
                       class="form-control py-2"
                       required
+                      value="{{shipping_address_defult[0]['address_line1']}}"
                     />
                     <label
                       for="address_line2"
@@ -247,6 +250,7 @@
                       id="address_line2"
                       class="form-control py-2"
                       required
+                      value="{{shipping_address_defult[0]['address_line2']}}"
                     />
                     <label
                       for="city"
@@ -254,19 +258,15 @@
                       style="font-size: 14px"
                       >شهر</label
                     >
-                    <select name="city" id="city" class="form-select">
-                      <option value="">انتخاب شهر</option>
-                      <option value="1">تهران</option>
-                      <option value="2">مشهد</option>
-                      <option value="3">اصفهان</option>
-                      <option value="4">شیراز</option>
-                      <option value="5">تبریز</option>
-                      <option value="6">کرج</option>
-                      <option value="7">اهواز</option>
-                      <option value="8">قم</option>
-                      <option value="9">کیش</option>
-                      <option value="10">یزد</option>
-                    </select>
+                     <input
+                      type="text"
+                      style="font-size: 13px"
+                      name="city"
+                      id="city"
+                      class="form-control py-2"
+                      required
+                      value="{{shipping_address_defult[0]['city']}}"
+                    />
                     <label
                       for="state"
                       class="form-label mt-3"
@@ -280,6 +280,7 @@
                       id="state"
                       class="form-control py-2"
                       required
+                      value="{{shipping_address_defult[0]['state']}}"
                     />
                     <label
                       for="postal_code"
@@ -294,6 +295,7 @@
                       id="postal_code"
                       class="form-control py-2"
                       required
+                      value="{{shipping_address_defult[0]['postal_code']}}"
                     />
                     <label
                       for="country"
@@ -308,6 +310,7 @@
                       id="country"
                       class="form-control py-2"
                       required
+                      value="{{shipping_address_defult[0]['country']}}"
                     />
                     <div class="modal-footer">
                       <button

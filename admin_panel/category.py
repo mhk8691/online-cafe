@@ -61,6 +61,31 @@ def get_all_category(limit):
     return final_categories
 
 
+# Get all products
+def get_all_category_filter(name, search, limit):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute(
+        f"SELECT * FROM Categories WHERE {name} = ? LIMIT {limit}",
+        (search,),
+    )
+    categories = cur.fetchall()
+    final_categories = []
+    for category in categories:
+        final_categories.append(
+            {
+                "id": category[0],
+                "name": category[1],
+                "description": category[2],
+                "parent_category_id": category[3],
+                "created_at": category[4],
+                # "picture": category[5],
+            }
+        )
+    conn.close()
+    return final_categories
+
+
 # Create a new product
 def create_category(name, description, parent_category_id, created_at, picture):
     conn = get_db_connection()
@@ -101,13 +126,30 @@ def delete_category(category_id):
 # CRUD routes
 @app.route("/category/", methods=["GET"])
 def list_category():
+
     range = request.args.get("range")
     x = re.split(",", range)
     final_range = re.split("]", x[1])[0]
-    categories = get_all_category(int(final_range) + 1)
-    response = jsonify(categories)
+    get_filter = request.args.get("filter")
+    category = get_all_category(int(final_range) + 1)
+    response = jsonify(category)
+    if len(get_filter) > 2:
+        name = re.split(r""":""", get_filter)
+        name2 = re.split(r"""^{\"""", name[0])
+        name2 = re.split(r"""\"$""", name2[1])
+        regex_filter = re.split(rf'"{name2[0]}":"(.*?)"', get_filter)
+
+        response = jsonify(
+            get_all_category_filter(
+                name2[0],
+                regex_filter[1],
+                int(final_range) + 1,
+            ),
+        )
+
     response.headers["Access-Control-Expose-Headers"] = "Content-Range"
-    response.headers["Content-Range"] = len(categories)
+    response.headers["Content-Range"] = len(category)
+
     return response
 
 

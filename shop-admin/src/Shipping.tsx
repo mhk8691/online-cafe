@@ -19,8 +19,9 @@ import {
 import { Stack } from "@mui/material";
 
 const CustomerFilters = [
-  <SearchInput source="name" alwaysOn />,
-  <TextInput label="email" source="email" defaultValue="irmrbug@gmail.com" />,
+  <SearchInput source="recipient_name" alwaysOn placeholder="recipient name" />,
+  <TextInput label="city" source="city" />,
+  <TextInput label="country" source="country" />,
 ];
 const ListToolbar = () => (
   <Stack direction="row" justifyContent="space-between">
@@ -43,8 +44,8 @@ export const ShippingList = () => (
       <TextField source="state" />
       <TextField source="postal_code" />
       <TextField source="country" />
-      <EditButton label="" />
-      <ShowButton label="" />
+      <EditButton label="Edit" />
+      <ShowButton label="Show" />
     </Datagrid>
   </List>
 );

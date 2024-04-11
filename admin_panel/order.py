@@ -107,6 +107,48 @@ def get_all_order(limit):
     return final_orders
 
 
+# Get all order
+def get_all_order_filter(name, search, limit):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute(
+        f"""SELECT order_id,Customers.username,order_date,total_amount,status
+        FROM Orders
+        INNER JOIN Customers
+         ON Customers.customer_id = Orders.customer_id
+            WHERE {name} = ? LIMIT {limit}
+         """,
+        (search,),
+    )
+    orders = cur.fetchall()
+    final_orders = []
+    for order in orders:
+        cur.execute(
+            """SELECT SUM(Order_Details.quantity)
+            FROM Order_Details
+            INNER JOIN Orders
+            ON Orders.order_id = Order_Details.order_id
+            WHERE Orders.order_id = ?
+            """,
+            (order[0],),
+        )
+        quantity = cur.fetchone()
+        for q in quantity:
+
+            final_orders.append(
+                {
+                    "id": order[0],
+                    "username": order[1],
+                    "order_date": order[2],
+                    "total_amount": order[3],
+                    "status": order[4],
+                    "quantity": q,
+                }
+            )
+    conn.close()
+    return final_orders
+
+
 def notification(
     customer_id,
     message,
@@ -161,13 +203,37 @@ def delete_order(order_id):
 
 @app.route("/orders/", methods=["GET"])
 def list_order():
+    # range = request.args.get("range")
+    # x = re.split(",",range)
+    # final_range = re.split("]",x[1])[0]
+    # orders = get_all_order(int(final_range)+1)
+    # response = jsonify(orders)
+    # response.headers["Access-Control-Expose-Headers"] = "Content-Range"
+    # response.headers["Content-Range"] = len(orders)
+    # return response
     range = request.args.get("range")
-    x = re.split(",",range)
-    final_range = re.split("]",x[1])[0]
-    orders = get_all_order(int(final_range)+1)
-    response = jsonify(orders)
+    x = re.split(",", range)
+    final_range = re.split("]", x[1])[0]
+    get_filter = request.args.get("filter")
+    order = get_all_order(int(final_range) + 1)
+    response = jsonify(order)
+    if len(get_filter) > 2:
+        name = re.split(r""":""", get_filter)
+        name2 = re.split(r"""^{\"""", name[0])
+        name2 = re.split(r"""\"$""", name2[1])
+        regex_filter = re.split(rf'"{name2[0]}":"(.*?)"', get_filter)
+
+        response = jsonify(
+            get_all_order_filter(
+                name2[0],
+                regex_filter[1],
+                int(final_range) + 1,
+            ),
+        )
+
     response.headers["Access-Control-Expose-Headers"] = "Content-Range"
-    response.headers["Content-Range"] = len(orders)
+    response.headers["Content-Range"] = len(order)
+
     return response
 
 
