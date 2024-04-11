@@ -7,7 +7,7 @@ import re
 
 app = connect_db.app
 
-
+text = "Admin"
 cors = CORS(app)
 app.config["UPLOAD_FOLDER"] = "static/img/"
 
@@ -193,16 +193,17 @@ def update_order(
     status,
     order_id,
 ):
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute(
-        "UPDATE Orders SET status = ? WHERE order_id = ?",
-        (status, order_id),
-    )
+    if text == "Admin" or text == "Super Admin":
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute(
+            "UPDATE Orders SET status = ? WHERE order_id = ?",
+            (status, order_id),
+        )
 
-    conn.commit()
-    conn.close()
-    return get_order(order_id)
+        conn.commit()
+        conn.close()
+        return get_order(order_id)
 
 
 

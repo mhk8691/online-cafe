@@ -10,6 +10,7 @@ import os
 
 app = connect_db.app
 
+text = "Super Admin"
 
 cors = CORS(app)
 UPLOAD_FOLDER = "static/img/"
@@ -173,47 +174,49 @@ def get_all_product_filter(name, search, limit):
 
 # Create a new product
 def create_product(name, description, price, categories_id, picture):
+    if text == "Admin" or text == "Super Admin":
+        conn = get_db_connection()
+        cur = conn.cursor()
 
-    conn = get_db_connection()
-    cur = conn.cursor()
-
-    cur.execute(
-        "INSERT INTO Products (name,description, price,categories_id,picture) VALUES (?, ?, ?,?,?)",
-        (name, description, price, categories_id, picture),
-    )
-    conn.commit()
-    product_id = cur.lastrowid
-    conn.close()
-    return product_id
+        cur.execute(
+            "INSERT INTO Products (name,description, price,categories_id,picture) VALUES (?, ?, ?,?,?)",
+            (name, description, price, categories_id, picture),
+        )
+        conn.commit()
+        product_id = cur.lastrowid
+        conn.close()
+        return product_id
 
 
 # Update a product
 def update_product(name, description, price, categories_id, product_id):
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute(
-        "UPDATE products SET name = ?,description = ?, price = ? , categories_id= ? WHERE product_id = ?",
-        (
-            name,
-            description,
-            price,
-            categories_id,
-            product_id,
-        ),
-    )
-    conn.commit()
-    conn.close()
-    return get_product(product_id)
+    if text == "Admin" or text == "Super Admin":
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute(
+            "UPDATE products SET name = ?,description = ?, price = ? , categories_id= ? WHERE product_id = ?",
+            (
+                name,
+                description,
+                price,
+                categories_id,
+                product_id,
+            ),
+        )
+        conn.commit()
+        conn.close()
+        return get_product(product_id)
 
 
 # Delete a product
 def delete_product(product_id):
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute("DELETE FROM products WHERE product_id = ?", (product_id,))
-    cur.execute("DELETE FROM cart WHERE product_id = ?", (product_id,))
-    conn.commit()
-    conn.close()
+    if text == "Admin" or text == "Super Admin":
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute("DELETE FROM products WHERE product_id = ?", (product_id,))
+        cur.execute("DELETE FROM cart WHERE product_id = ?", (product_id,))
+        conn.commit()
+        conn.close()
 
 
 # CRUD routes

@@ -276,6 +276,7 @@ def user_cart():
             for list in list_address:
                 shipping_address_defult.append(
                     {
+                        "recipient_name": list[2],
                         "address_line1": list[3],
                         "address_line2": list[4],
                         "city": list[5],

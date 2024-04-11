@@ -139,8 +139,16 @@ def shipping_address():
         postal_code = request.form["postal_code"]
         country = request.form["country"]
         connection.execute(
-            """ INSERT INTO Shipping_Addresses(customer_id,recipient_name,address_line1,address_line2,city,state,postal_code,country)
-            VALUES (?,?,?,?,?,?,?,?)  """,
+            """SELECT * 
+            from Shipping_Addresses
+            where customer_id = ? 
+            and recipient_name = ?
+            and address_line1=? 
+            and address_line2=? 
+            and city = ? 
+            and state=? 
+            and postal_code=? 
+            and country=?""",
             (
                 customer_information[0],
                 recipient_name,
@@ -152,6 +160,23 @@ def shipping_address():
                 country,
             ),
         )
+        shipping_list = connection.fetchall()
+        print(len(shipping_list))
+        if len(shipping_list) == 0:
+            connection.execute(
+                """ INSERT INTO Shipping_Addresses(customer_id,recipient_name,address_line1,address_line2,city,state,postal_code,country)
+                VALUES (?,?,?,?,?,?,?,?)  """,
+                (
+                    customer_information[0],
+                    recipient_name,
+                    address_line1,
+                    address_line2,
+                    city,
+                    state,
+                    postal_code,
+                    country,
+                ),
+            )
         conn.commit()
 
 

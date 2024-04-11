@@ -12,6 +12,8 @@ app = connect_db.app
 cors = CORS(app)
 app.config["UPLOAD_FOLDER"] = "static/img/"
 
+text = "Super Admin"
+
 
 def get_db_connection():
     conn = sqlite3.connect("onlineShop.db")
@@ -26,7 +28,7 @@ def get_data_from_database():
     data = cursor.fetchall()
     conn.close()
     # تبدیل داده‌ها به یک لیست از دیکشنری‌ها
-    
+
     data_json = [
         {
             "id": row[0],
@@ -93,6 +95,8 @@ def get_all_user(limit):
         )
     conn.close()
     return final_users
+
+
 # Get all user
 def get_all_user_filter(name, search, limit):
     conn = get_db_connection()
@@ -124,21 +128,22 @@ def create_user(
     email,
     role,
 ):
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute(
-        "INSERT INTO Users (username,password, email,role) VALUES (?, ?, ?,?)",
-        (
-            username,
-            password,
-            email,
-            role,
-        ),
-    )
-    conn.commit()
-    user_id = cur.lastrowid
-    conn.close()
-    return user_id
+    if text == "Super Admin":
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute(
+            "INSERT INTO Users (username,password, email,role) VALUES (?, ?, ?,?)",
+            (
+                username,
+                password,
+                email,
+                role,
+            ),
+        )
+        conn.commit()
+        user_id = cur.lastrowid
+        conn.close()
+        return user_id
 
 
 # Update a user
@@ -149,30 +154,32 @@ def update_user(
     role,
     user_id,
 ):
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute(
-        "UPDATE Users SET username = ?,password = ?, email = ?, role = ? WHERE user_id = ?",
-        (
-            username,
-            password,
-            email,
-            role,
-            user_id,
-        ),
-    )
-    conn.commit()
-    conn.close()
-    return get_user(user_id)
+    if text == "Super Admin":
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute(
+            "UPDATE Users SET username = ?,password = ?, email = ?, role = ? WHERE user_id = ?",
+            (
+                username,
+                password,
+                email,
+                role,
+                user_id,
+            ),
+        )
+        conn.commit()
+        conn.close()
+        return get_user(user_id)
 
 
 # Delete a user
 def delete_user(user_id):
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute("DELETE FROM Users WHERE user_id = ?", (user_id,))
-    conn.commit()
-    conn.close()
+    if text == "Super Admin":
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute("DELETE FROM Users WHERE user_id = ?", (user_id,))
+        conn.commit()
+        conn.close()
 
 
 # CRUD routes
@@ -218,7 +225,7 @@ def add_user():
         role,
     )
     save_data_route()
-    
+
     return jsonify(get_user(userlist)), 201
 
 
@@ -253,5 +260,5 @@ def update_user_by_id(user_id):
 def delete_user_by_id(user_id):
     delete_user(user_id)
     save_data_route()
-    
+
     return jsonify({"id": user_id}), 200

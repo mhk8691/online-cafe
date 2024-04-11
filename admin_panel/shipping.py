@@ -7,7 +7,7 @@ import re
 
 app = connect_db.app
 
-
+text = "Admin"
 cors = CORS(app)
 app.config["UPLOAD_FOLDER"] = "static/img/"
 
@@ -142,7 +142,8 @@ def update_shipping(
     country,
     address_id,
 ):
-    conn = get_db_connection()
+    if text == "Admin" or text == "Super Admin":
+        conn = get_db_connection()
     cur = conn.cursor()
     cur.execute(
         """UPDATE 
@@ -167,11 +168,12 @@ def update_shipping(
 
 # Delete a shipping
 def delete_shipping(address_id):
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute("DELETE FROM Shipping_Addresses WHERE address_id = ?", (address_id,))
-    conn.commit()
-    conn.close()
+    if text == "Admin" or text == "Super Admin":
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute("DELETE FROM Shipping_Addresses WHERE address_id = ?", (address_id,))
+        conn.commit()
+        conn.close()
 
 
 # CRUD routes

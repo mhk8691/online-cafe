@@ -11,6 +11,7 @@ app = connect_db.app
 cors = CORS(app)
 app.config["UPLOAD_FOLDER"] = "static/img/"
 
+text = "Super Admin"
 
 def get_db_connection():
     conn = sqlite3.connect("onlineShop.db")
@@ -56,41 +57,45 @@ def get_customer(customer_id):
 
 # Create a new customer
 def create_customer(name, password, email, phone, registration_date):
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute(
-        "INSERT INTO customers (username,password, email, phone,registration_date) VALUES (?, ?, ?,?,?)",
-        (name, password, email, phone, registration_date),
-    )
-    conn.commit()
-    customer_id = cur.lastrowid
-    conn.close()
-    return customer_id
+    if text == "Admin" or text == "Super Admin":
+
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute(
+            "INSERT INTO customers (username,password, email, phone,registration_date) VALUES (?, ?, ?,?,?)",
+            (name, password, email, phone, registration_date),
+        )
+        conn.commit()
+        customer_id = cur.lastrowid
+        conn.close()
+        return customer_id
 
 
 # Update a customer
 def update_customer(customer_id, name, password, email, phone):
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute(
-        "UPDATE customers SET username = ?,password = ?, email = ?, phone = ? WHERE customer_id = ?",
-        (name, password, email, phone, customer_id),
-    )
-    conn.commit()
-    conn.close()
-    return get_customer(customer_id)
+    if text == "Admin" or text == "Super Admin":
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute(
+            "UPDATE customers SET username = ?,password = ?, email = ?, phone = ? WHERE customer_id = ?",
+            (name, password, email, phone, customer_id),
+        )
+        conn.commit()
+        conn.close()
+        return get_customer(customer_id)
 
 
 # Delete a customer
 def delete_customer(customer_id):
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute("DELETE FROM customers WHERE customer_id = ?", (customer_id,))
-    cur.execute("DELETE FROM Shipping_Addresses WHERE customer_id = ?", (customer_id,))
-    cur.execute("DELETE FROM Feedback WHERE customer_id = ?", (customer_id,))
-    cur.execute("DELETE FROM cart WHERE customer_id = ?", (customer_id,))
-    conn.commit()
-    conn.close()
+    if text == "Admin" or text == "Super Admin":
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute("DELETE FROM customers WHERE customer_id = ?", (customer_id,))
+        cur.execute("DELETE FROM Shipping_Addresses WHERE customer_id = ?", (customer_id,))
+        cur.execute("DELETE FROM Feedback WHERE customer_id = ?", (customer_id,))
+        cur.execute("DELETE FROM cart WHERE customer_id = ?", (customer_id,))
+        conn.commit()
+        conn.close()
 
 
 # Get all customers
