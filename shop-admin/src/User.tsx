@@ -14,6 +14,7 @@ import {
   DateField,
   EditButton,
   ShowButton,
+  DeleteButton,
 } from "react-admin";
 import { Stack } from "@mui/material";
 
@@ -41,6 +42,7 @@ export const UserList = () => (
       <TextField source="role" />
       <EditButton label="edit" />
       <ShowButton label="show" />
+      <DeleteButton label="delete" />
     </Datagrid>
   </List>
 );

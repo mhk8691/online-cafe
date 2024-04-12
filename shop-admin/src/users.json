@@ -27,20 +27,6 @@
             "password": "789",
             "role": "1",
             "username": "test"
-        },
-        {
-            "email": "javd@gmail.com",
-            "id": 7,
-            "password": "123456",
-            "role": "j",
-            "username": "javad"
-        },
-        {
-            "email": "1",
-            "id": 9,
-            "password": "1",
-            "role": "1",
-            "username": "1"
         }
     ]
 }

@@ -120,7 +120,6 @@ def list_log():
 
 
 @app.route("/admin_logs", methods=["POST"])
-
 @app.route("/admin_logs/<int:log_id>", methods=["GET"])
 def get_log_by_id(log_id):
     log = get_log(log_id)

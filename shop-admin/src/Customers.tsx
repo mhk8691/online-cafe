@@ -14,6 +14,7 @@ import {
   DateField,
   EditButton,
   ShowButton,
+  DeleteButton,
 } from "react-admin";
 import { Stack } from "@mui/material";
 
@@ -32,7 +33,6 @@ const ListToolbar = () => (
     <FilterForm filters={CustomerFilters} />
     <div>
       <FilterButton filters={CustomerFilters} />
-      <CreateButton />
     </div>
   </Stack>
 );
@@ -48,6 +48,7 @@ export const CustomersList = () => (
       <TextField source="phone" />
       <EditButton label="edit" />
       <ShowButton label="show" />
+      <DeleteButton label="delete" />
     </Datagrid>
   </List>
 );

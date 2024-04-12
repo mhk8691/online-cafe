@@ -16,10 +16,5 @@ import admin_panel.payment
 import admin_panel.order_details
 import admin_panel.Feedback
 import admin_panel.adminLogs
-
-
-
-
-
-app = connect_db.app
+import admin_panel.notification
 

@@ -34,7 +34,7 @@ const ListToolbar = () => (
 export const FeedbackList = () => (
   <List>
     <ListToolbar />
-    <Datagrid rowClick="show">
+    <Datagrid rowClick="create">
       <NumberField source="id" />
       <TextField source="customer_name" />
       <TextField source="order_id" />
@@ -43,6 +43,9 @@ export const FeedbackList = () => (
       <DateField source="feedback_date" />
       {/* <ImageField source="picture" /> */}
       <ShowButton label="show" />
+      <button >
+        <a href="http://localhost:5173/#/Notification/create">پاسخ</a>
+      </button>
     </Datagrid>
   </List>
 );

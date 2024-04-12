@@ -170,15 +170,7 @@ def customer_id(feedback_id):
     return customer_id
 
 
-print("hello")
 
 
-@app.route("/feedback", methods=["POST"])
-def add_feedback():
-    # feedback_id = 2
-    # customer_id = customer_id(8)
-    message = request.json["message"]
-    print(message)
-    time = datetime.today().strftime("%Y-%m-%d")
 
-    notif = notification(8, message, time, "Unread")
+

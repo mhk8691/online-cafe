@@ -15,6 +15,7 @@ import {
   ImageField,
   EditButton,
   ShowButton,
+  DeleteButton,
 } from "react-admin";
 import { Stack } from "@mui/material";
 import { blob } from "stream/consumers";
@@ -37,6 +38,7 @@ export const CategoriesList = () => (
       <ImageField source="picture" />
       <EditButton label="Edit" />
       <ShowButton label="Show" />
+      <DeleteButton label="delete" />
     </Datagrid>
   </List>
 );

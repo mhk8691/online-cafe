@@ -10,6 +10,7 @@ import {
 export const feedbackCreate = () => (
   <Create>
     <SimpleForm>
+      <TextInput source="username" validate={[required()]} fullWidth />
       <TextInput source="message" validate={[required()]} fullWidth />
     </SimpleForm>
   </Create>
