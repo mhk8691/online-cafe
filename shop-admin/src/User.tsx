@@ -15,6 +15,7 @@ import {
   EditButton,
   ShowButton,
   DeleteButton,
+  SelectInput,
 } from "react-admin";
 import { Stack } from "@mui/material";
 
@@ -27,7 +28,6 @@ const ListToolbar = () => (
     <FilterForm filters={CustomerFilters} />
     <div>
       <FilterButton filters={CustomerFilters} />
-      <CreateButton />
     </div>
   </Stack>
 );
@@ -40,6 +40,7 @@ export const UserList = () => (
       <TextField source="password" />
       <EmailField source="email" />
       <TextField source="role" />
+      
       <EditButton label="edit" />
       <ShowButton label="show" />
       <DeleteButton label="delete" />

@@ -4,10 +4,12 @@ from flask_cors import CORS, cross_origin
 import connect_db as connect_db
 from datetime import datetime
 import re
+import admin_panel.user_login as user_login
 
+user_information = user_login.user_information
 app = connect_db.app
 
-text = "Admin"
+
 cors = CORS(app)
 app.config["UPLOAD_FOLDER"] = "static/img/"
 
@@ -193,7 +195,9 @@ def update_order(
     status,
     order_id,
 ):
-    if text == "Admin" or text == "Super Admin":
+    role = user_information[4]
+    
+    if role == "Admin" or role == "Super Admin":
         conn = get_db_connection()
         cur = conn.cursor()
         cur.execute(
@@ -207,98 +211,79 @@ def update_order(
 
 
 
-# # Delete a user
-# def delete_order(order_id):
-#     conn = get_db_connection()
-#     cur = conn.cursor()
-#     cur.execute("DELETE FROM Orders WHERE order_id = ?", (order_id,))
-#     cur.execute(
-#         "DELETE FROM Order_Details WHERE Order_Details.order_id = ?", (order_id,)
-#     )
-#     cur.execute("DELETE FROM Payments WHERE Payments.order_id = ?", (order_id,))
-#     cur.execute("DELETE FROM Feedback WHERE Feedback.order_id = ?", (order_id,))
-#     conn.commit()
-#     conn.close()
-
 
 @app.route("/orders/", methods=["GET"])
 def list_order():
-    # range = request.args.get("range")
-    # x = re.split(",",range)
-    # final_range = re.split("]",x[1])[0]
-    # orders = get_all_order(int(final_range)+1)
-    # response = jsonify(orders)
-    # response.headers["Access-Control-Expose-Headers"] = "Content-Range"
-    # response.headers["Content-Range"] = len(orders)
-    # return response
-    range = request.args.get("range")
-    x = re.split(",", range)
-    final_range = re.split("]", x[1])[0]
-    get_filter = request.args.get("filter")
-    order = get_all_order(int(final_range) + 1)
-    response = jsonify(order)
-    if len(get_filter) > 2:
-        name = re.split(r""":""", get_filter)
-        name2 = re.split(r"""^{\"""", name[0])
-        name2 = re.split(r"""\"$""", name2[1])
-        regex_filter = re.split(rf'"{name2[0]}":"(.*?)"', get_filter)
+    if len(user_information) !=0:
+        range = request.args.get("range")
+        x = re.split(",", range)
+        final_range = re.split("]", x[1])[0]
+        get_filter = request.args.get("filter")
+        order = get_all_order(int(final_range) + 1)
+        response = jsonify(order)
+        if len(get_filter) > 2:
+            name = re.split(r""":""", get_filter)
+            name2 = re.split(r"""^{\"""", name[0])
+            name2 = re.split(r"""\"$""", name2[1])
+            regex_filter = re.split(rf'"{name2[0]}":"(.*?)"', get_filter)
 
-        response = jsonify(
-            get_all_order_filter(
-                name2[0],
-                regex_filter[1],
-                int(final_range) + 1,
-            ),
-        )
+            response = jsonify(
+                get_all_order_filter(
+                    name2[0],
+                    regex_filter[1],
+                    int(final_range) + 1,
+                ),
+            )
 
-    response.headers["Access-Control-Expose-Headers"] = "Content-Range"
-    response.headers["Content-Range"] = len(order)
+        response.headers["Access-Control-Expose-Headers"] = "Content-Range"
+        response.headers["Content-Range"] = len(order)
 
-    return response
+        return response
 
 
 @app.route("/orders", methods=["POST"])
 @app.route("/orders/<int:order_id>", methods=["GET"])
 def get_order_by_id(order_id):
-    order = get_order(order_id)
-    if order is None:
-        return "", 404
-    return jsonify(order), 200
+    if len(user_information) !=0:
+        order = get_order(order_id)
+        if order is None:
+            return "", 404
+        return jsonify(order), 200
 
 
 @app.route("/orders/<int:order_id>", methods=["PUT"])
 def update_order_by_id(order_id):
+    if len(user_information) !=0:
+        status = request.json["status"]
+        ci = customer_id(order_id)
+        time = datetime.today().strftime("%Y-%m-%d")
+        statusToPershian = ""
+        if status == "Send":
+            statusToPershian = "ارسال"
+        elif status == "Confirmation":
+            statusToPershian = "تایید"
+        elif status == "Delivery":
+            statusToPershian = "تحویل"
+        elif status == "Cancel":
+            statusToPershian = "لغو"
+        message = f"سفارش شما در حالت {statusToPershian} قرار گرفت"
 
-    status = request.json["status"]
-    ci = customer_id(order_id)
-    time = datetime.today().strftime("%Y-%m-%d")
-    statusToPershian = ""
-    if status == "Send":
-        statusToPershian = "ارسال"
-    elif status == "Confirmation":
-        statusToPershian = "تایید"
-    elif status == "Delivery":
-        statusToPershian = "تحویل"
-    elif status == "Cancel":
-        statusToPershian = "لغو"
-    message = f"سفارش شما در حالت {statusToPershian} قرار گرفت"
-
-    notification(
-        ci,
-        message,
-        time,
-        "Unread",
-    )
-    name = get_order(order_id)
-    
-    user_ip = request.remote_addr
-    action = f"Update Order name :{name["username"]} status :{status}"
-    admin_log(3, action, time, user_ip)
-    
-    updated = update_order(
-        status,
-        order_id,
-    )
-    return jsonify(updated), 200
+        notification(
+            ci,
+            message,
+            time,
+            "Unread",
+        )
+        name = get_order(order_id)
+        
+        user_ip = request.remote_addr
+        action = f"Update Order name :{name["username"]} status :{status}"
+        admin_log(3, action, time, user_ip)
+        
+        updated = update_order(
+            status,
+            order_id,
+        )
+        return jsonify(updated), 200
 
 

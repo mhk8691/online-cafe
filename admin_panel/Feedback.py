@@ -4,7 +4,9 @@ from flask_cors import CORS, cross_origin
 import connect_db as connect_db
 from datetime import datetime
 import re
+import admin_panel.user_login as user_login
 
+user_information = user_login.user_information
 app = connect_db.app
 
 
@@ -74,8 +76,6 @@ def get_all_feedback(limit):
     return final_feedback
 
 
-
-
 def get_all_feedback_filter(name, search, limit):
     conn = get_db_connection()
     cur = conn.cursor()
@@ -104,40 +104,42 @@ def get_all_feedback_filter(name, search, limit):
 
 @app.route("/feedback/<int:feedback_id>", methods=["GET"])
 def get_feedback_by_id(feedback_id):
-    feedback = get_feedback(feedback_id)
-    feedback_id2 = feedback_id
-    if feedback is None:
-        return "", 404
-    return jsonify(feedback), 200
+    if len(user_information) !=0:
+        feedback = get_feedback(feedback_id)
+        feedback_id2 = feedback_id
+        if feedback is None:
+            return "", 404
+        return jsonify(feedback), 200
 
 
 @app.route("/feedback", methods=["POST"])
 @app.route("/feedback/", methods=["GET"])
 def list_feedback():
-    range = request.args.get("range")
-    x = re.split(",", range)
-    final_range = re.split("]", x[1])[0]
-    get_filter = request.args.get("filter")
-    feedback = get_all_feedback(int(final_range) + 1)
-    response = jsonify(feedback)
-    if len(get_filter) > 2:
-        name = re.split(r""":""", get_filter)
-        name2 = re.split(r"""^{\"""", name[0])
-        name2 = re.split(r"""\"$""", name2[1])
-        regex_filter = re.split(rf'"{name2[0]}":"(.*?)"', get_filter)
+    if len(user_information) !=0:
+        range = request.args.get("range")
+        x = re.split(",", range)
+        final_range = re.split("]", x[1])[0]
+        get_filter = request.args.get("filter")
+        feedback = get_all_feedback(int(final_range) + 1)
+        response = jsonify(feedback)
+        if len(get_filter) > 2:
+            name = re.split(r""":""", get_filter)
+            name2 = re.split(r"""^{\"""", name[0])
+            name2 = re.split(r"""\"$""", name2[1])
+            regex_filter = re.split(rf'"{name2[0]}":"(.*?)"', get_filter)
 
-        response = jsonify(
-            get_all_feedback_filter(
-                name2[0],
-                regex_filter[1],
-                int(final_range) + 1,
-            ),
-        )
+            response = jsonify(
+                get_all_feedback_filter(
+                    name2[0],
+                    regex_filter[1],
+                    int(final_range) + 1,
+                ),
+            )
 
-    response.headers["Access-Control-Expose-Headers"] = "Content-Range"
-    response.headers["Content-Range"] = len(feedback)
+        response.headers["Access-Control-Expose-Headers"] = "Content-Range"
+        response.headers["Content-Range"] = len(feedback)
 
-    return response
+        return response
 
 
 # Update a user
@@ -168,9 +170,3 @@ def customer_id(feedback_id):
     )
     customer_id = cur.fetchone()[0]
     return customer_id
-
-
-
-
-
-

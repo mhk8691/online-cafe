@@ -7,7 +7,9 @@ import re
 
 app = connect_db.app
 
+import admin_panel.user_login as user_login
 
+user_information = user_login.user_information
 cors = CORS(app)
 app.config["UPLOAD_FOLDER"] = "static/img/"
 
@@ -85,29 +87,30 @@ def get_all_order_details_filter(name, search, limit):
 @app.route("/Order_Details", methods=["POST"])
 @app.route("/Order_Details/", methods=["GET"])
 def list_order_details():
-    range = request.args.get("range")
-    x = re.split(",", range)
-    final_range = re.split("]", x[1])[0]
-    get_filter = request.args.get("filter")
-    final_range2 = int(final_range) + 1
-    print(final_range2)
-    order_details = get_all_order_details(final_range2)
-    response = jsonify(order_details)
-    if len(get_filter) > 2:
-        name = re.split(r""":""", get_filter)
-        name2 = re.split(r"""^{\"""", name[0])
-        name2 = re.split(r"""\"$""", name2[1])
-        regex_filter = re.split(rf'"{name2[0]}":"(.*?)"', get_filter)
+    if len(user_information) !=0:
+        range = request.args.get("range")
+        x = re.split(",", range)
+        final_range = re.split("]", x[1])[0]
+        get_filter = request.args.get("filter")
+        final_range2 = int(final_range) + 1
+        print(final_range2)
+        order_details = get_all_order_details(final_range2)
+        response = jsonify(order_details)
+        if len(get_filter) > 2:
+            name = re.split(r""":""", get_filter)
+            name2 = re.split(r"""^{\"""", name[0])
+            name2 = re.split(r"""\"$""", name2[1])
+            regex_filter = re.split(rf'"{name2[0]}":"(.*?)"', get_filter)
 
-        response = jsonify(
-            get_all_order_details_filter(
-                name2[0],
-                regex_filter[1],
-                int(final_range) + 1,
-            ),
-        )
+            response = jsonify(
+                get_all_order_details_filter(
+                    name2[0],
+                    regex_filter[1],
+                    int(final_range) + 1,
+                ),
+            )
 
-    response.headers["Access-Control-Expose-Headers"] = "Content-Range"
-    response.headers["Content-Range"] = len(order_details)
+        response.headers["Access-Control-Expose-Headers"] = "Content-Range"
+        response.headers["Content-Range"] = len(order_details)
 
-    return response
+        return response

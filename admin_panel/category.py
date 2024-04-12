@@ -4,10 +4,12 @@ from flask_cors import CORS, cross_origin
 import connect_db as connect_db
 from datetime import datetime
 import re
+import admin_panel.user_login as user_login
 
+user_information = user_login.user_information
 app = connect_db.app
 
-text = "admin"
+
 cors = CORS(app)
 app.config["UPLOAD_FOLDER"] = "static/img/"
 
@@ -106,7 +108,9 @@ def get_all_category_filter(name, search, limit):
 
 # Create a new product
 def create_category(name, description, parent_category_id, created_at, picture):
-    if text == "Admin" or text == "Super Admin":
+    role = user_information[4]
+
+    if role == "Admin" or role == "Super Admin":
 
         conn = get_db_connection()
         cur = conn.cursor()
@@ -122,8 +126,10 @@ def create_category(name, description, parent_category_id, created_at, picture):
 
 # Update a product
 def update_category(name, description, parent_category_id, category_id):
-    if text == "Admin" or text == "Super Admin":
-    
+    role = user_information[4]
+
+    if role == "Admin" or role == "Super Admin":
+
         conn = get_db_connection()
         cur = conn.cursor()
         cur.execute(
@@ -137,8 +143,10 @@ def update_category(name, description, parent_category_id, category_id):
 
 # Delete a product
 def delete_category(category_id):
-    if text == "Admin" or text == "Super Admin":
-    
+    role = user_information[4]
+
+    if role == "Admin" or role == "Super Admin":
+
         conn = get_db_connection()
         cur = conn.cursor()
         cur.execute("DELETE FROM Categories WHERE category_id = ?", (category_id,))
@@ -150,36 +158,37 @@ def delete_category(category_id):
 # CRUD routes
 @app.route("/category/", methods=["GET"])
 def list_category():
+    if len(user_information) !=0:
 
-    range = request.args.get("range")
-    x = re.split(",", range)
-    final_range = re.split("]", x[1])[0]
-    get_filter = request.args.get("filter")
-    category = get_all_category(int(final_range) + 1)
-    response = jsonify(category)
-    if len(get_filter) > 2:
-        name = re.split(r""":""", get_filter)
-        name2 = re.split(r"""^{\"""", name[0])
-        name2 = re.split(r"""\"$""", name2[1])
-        regex_filter = re.split(rf'"{name2[0]}":"(.*?)"', get_filter)
+        range = request.args.get("range")
+        x = re.split(",", range)
+        final_range = re.split("]", x[1])[0]
+        get_filter = request.args.get("filter")
+        category = get_all_category(int(final_range) + 1)
+        response = jsonify(category)
+        if len(get_filter) > 2:
+            name = re.split(r""":""", get_filter)
+            name2 = re.split(r"""^{\"""", name[0])
+            name2 = re.split(r"""\"$""", name2[1])
+            regex_filter = re.split(rf'"{name2[0]}":"(.*?)"', get_filter)
 
-        response = jsonify(
-            get_all_category_filter(
-                name2[0],
-                regex_filter[1],
-                int(final_range) + 1,
-            ),
-        )
+            response = jsonify(
+                get_all_category_filter(
+                    name2[0],
+                    regex_filter[1],
+                    int(final_range) + 1,
+                ),
+            )
 
-    response.headers["Access-Control-Expose-Headers"] = "Content-Range"
-    response.headers["Content-Range"] = len(category)
+        response.headers["Access-Control-Expose-Headers"] = "Content-Range"
+        response.headers["Content-Range"] = len(category)
 
-    return response
-
+        return response
 
 
 @app.route("/category", methods=["POST"])
 def add_category():
+    if len(user_information) != 0:
         name = request.json["name"]
         description = request.json["description"]
         parent_category_id = request.json["parent_category_id"]
@@ -197,23 +206,24 @@ def add_category():
 
 @app.route("/category/<int:category_id>", methods=["GET"])
 def get_category_by_id(category_id):
-    category = get_category(category_id)
-    if category is None:
-        return "", 404
-    return jsonify(category), 200
-
+    if len(user_information) !=0:
+        category = get_category(category_id)
+        if category is None:
+            return "", 404
+        return jsonify(category), 200
 
 
 @app.route("/category/<int:category_id>", methods=["PUT"])
 def update_category_by_id(category_id):
-    name = request.json["name"]
-    description = request.json["description"]
-    parent_category_id = request.json["parent_category_id"]
-    user_ip = request.remote_addr
-    action = f"Update Category: {name}"
-    admin_log(3, action, time, user_ip)
-    updated = update_category(name, description, parent_category_id, category_id)
-    return jsonify(updated), 200
+    if len(user_information) !=0:
+        name = request.json["name"]
+        description = request.json["description"]
+        parent_category_id = request.json["parent_category_id"]
+        user_ip = request.remote_addr
+        action = f"Update Category: {name}"
+        admin_log(3, action, time, user_ip)
+        updated = update_category(name, description, parent_category_id, category_id)
+        return jsonify(updated), 200
 
 
 def get_name(category_id):
@@ -231,9 +241,10 @@ def get_name(category_id):
 
 @app.route("/category/<int:category_id>", methods=["DELETE"])
 def delete_category_by_id(category_id):
-    user_ip = request.remote_addr
-    name = get_name(category_id)
-    action = f"Delete Category: {name}"
-    admin_log(3, action, time, user_ip)
-    delete_category(category_id)
-    return jsonify({"id": category_id}), 200
+    if len(user_information) != 0:
+        user_ip = request.remote_addr
+        name = get_name(category_id)
+        action = f"Delete Category: {name}"
+        admin_log(3, action, time, user_ip)
+        delete_category(category_id)
+        return jsonify({"id": category_id}), 200

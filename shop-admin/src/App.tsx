@@ -1,4 +1,4 @@
-import { Admin, Resource, EditGuesser, ShowGuesser, LayoutProps } from "react-admin";
+import { Admin, Resource, EditGuesser, ShowGuesser, LayoutProps, ListGuesser } from "react-admin";
 import { dataProvider } from "./dataProvider";
 import { authProvider } from "./authProvider";
 import { CustomersList } from "./Customers";
@@ -19,13 +19,13 @@ import { LogList } from "./AdminLogs";
 import { NotificationList } from "./Notification";
 import CustomEditGuesser from "./Custom";
 import productEdit from "./productEdit";
+import UserEdit from "./UserEdit";
 import { Route } from "react-router-dom";
 
 import {  Layout } from "react-admin";
 
 import { MyAppBar } from "./MyAppBar";
 import { JSX } from "react/jsx-runtime";
-
 const MyLayout = (props: JSX.IntrinsicAttributes & LayoutProps) => <Layout {...props} appBar={MyAppBar} />;
 
 
@@ -36,9 +36,10 @@ const MyLayout = (props: JSX.IntrinsicAttributes & LayoutProps) => <Layout {...p
 export const App = () => (
   <Admin
     dataProvider={dataProvider}
-    authProvider={authProvider}
+    // authProvider={authProvider}
     layout={MyLayout}
     darkTheme={{ palette: { mode: "dark" } }}
+
     // darkTheme={darkTheme}
   >
     <Resource
@@ -71,7 +72,7 @@ export const App = () => (
     <Resource
       name="user"
       list={UserList}
-      edit={EditGuesser}
+      edit={UserEdit}
       show={ShowGuesser}
       create={UserCreate}
     />

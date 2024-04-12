@@ -4,29 +4,36 @@
             "email": "mohammad@gmail.com",
             "id": 1,
             "password": "03731289912",
-            "role": "mod",
+            "role": "RegularAdmin",
             "username": "mohammad1"
         },
         {
             "email": "mohammad@gmial.com",
             "id": 3,
             "password": "123",
-            "role": "test",
+            "role": "Admin",
             "username": "mhk"
         },
         {
             "email": "salam@gmail.com",
             "id": 4,
             "password": "123",
-            "role": "1",
+            "role": "RegularAdmin",
             "username": "salam"
         },
         {
             "email": "test@gmail.com",
             "id": 6,
             "password": "789",
-            "role": "1",
+            "role": "Admin",
             "username": "test"
+        },
+        {
+            "email": "admin@gmail.com",
+            "id": 7,
+            "password": "admin",
+            "role": "Super Admin",
+            "username": "admin"
         }
     ]
 }

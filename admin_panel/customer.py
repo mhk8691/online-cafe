@@ -1,17 +1,18 @@
-from flask import Flask, request, jsonify, json
+from flask import Flask, request, jsonify, json, redirect
 import sqlite3
 from flask_cors import CORS, cross_origin
 import connect_db as connect_db
 from datetime import datetime
 import re
+import admin_panel.user_login as user_login
 
 app = connect_db.app
 
 
 cors = CORS(app)
 app.config["UPLOAD_FOLDER"] = "static/img/"
+user_information = user_login.user_information
 
-text = "Super Admin"
 
 def get_db_connection():
     conn = sqlite3.connect("onlineShop.db")
@@ -57,7 +58,9 @@ def get_customer(customer_id):
 
 # Create a new customer
 def create_customer(name, password, email, phone, registration_date):
-    if text == "Admin" or text == "Super Admin":
+    role = user_information[4]
+    print(role)
+    if role == "Admin" or role == "Super Admin":
 
         conn = get_db_connection()
         cur = conn.cursor()
@@ -73,7 +76,9 @@ def create_customer(name, password, email, phone, registration_date):
 
 # Update a customer
 def update_customer(customer_id, name, password, email, phone):
-    if text == "Admin" or text == "Super Admin":
+    role = user_information[4]
+
+    if role == "Admin" or role == "Super Admin":
         conn = get_db_connection()
         cur = conn.cursor()
         cur.execute(
@@ -87,11 +92,15 @@ def update_customer(customer_id, name, password, email, phone):
 
 # Delete a customer
 def delete_customer(customer_id):
-    if text == "Admin" or text == "Super Admin":
+    role = user_information[4]
+
+    if role == "Admin" or role == "Super Admin":
         conn = get_db_connection()
         cur = conn.cursor()
         cur.execute("DELETE FROM customers WHERE customer_id = ?", (customer_id,))
-        cur.execute("DELETE FROM Shipping_Addresses WHERE customer_id = ?", (customer_id,))
+        cur.execute(
+            "DELETE FROM Shipping_Addresses WHERE customer_id = ?", (customer_id,)
+        )
         cur.execute("DELETE FROM Feedback WHERE customer_id = ?", (customer_id,))
         cur.execute("DELETE FROM cart WHERE customer_id = ?", (customer_id,))
         conn.commit()
@@ -100,6 +109,7 @@ def delete_customer(customer_id):
 
 # Get all customers
 def get_all_customers(limit):
+    
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute(
@@ -148,61 +158,65 @@ def get_all_customers_filter(name, search, limit):
 # CRUD routes
 @app.route("/customer/", methods=["GET"])
 def list_customer():
-    range = request.args.get("range")
-    x = re.split(",", range)
-    final_range = re.split("]", x[1])[0]
-    get_filter = request.args.get("filter")
-    customers = get_all_customers(int(final_range) + 1)
-    response = jsonify(customers)
-    if len(get_filter) > 2:
-        name = re.split(r""":""", get_filter)
-        name2 = re.split(r"""^{\"""", name[0])
-        name2 = re.split(r"""\"$""", name2[1])
-        regex_filter = re.split(rf'"{name2[0]}":"(.*?)"', get_filter)
+    if len(user_information) != 0:
+        range = request.args.get("range")
+        x = re.split(",", range)
+        final_range = re.split("]", x[1])[0]
+        get_filter = request.args.get("filter")
+        customers = get_all_customers(int(final_range) + 1)
+        response = jsonify(customers)
+        if len(get_filter) > 2:
+            name = re.split(r""":""", get_filter)
+            name2 = re.split(r"""^{\"""", name[0])
+            name2 = re.split(r"""\"$""", name2[1])
+            regex_filter = re.split(rf'"{name2[0]}":"(.*?)"', get_filter)
 
-        response = jsonify(
-            get_all_customers_filter(
-                name2[0],
-                regex_filter[1],
-                int(final_range) + 1,
-            ),
-        )
+            response = jsonify(
+                get_all_customers_filter(
+                    name2[0],
+                    regex_filter[1],
+                    int(final_range) + 1,
+                ),
+            )
 
-    response.headers["Access-Control-Expose-Headers"] = "Content-Range"
-    response.headers["Content-Range"] = len(customers)
+        response.headers["Access-Control-Expose-Headers"] = "Content-Range"
+        response.headers["Content-Range"] = len(customers)
 
-    return response
+        return response
 
 
 @app.route("/customer", methods=["POST"])
 def add_customer():
-    name = request.json["name"]
-    email = request.json["email"]
-    password = request.json["password"]
-    phone = request.json["phone"]
-    user_ip = request.remote_addr
+    if len(user_information) != 0:
+        name = request.json["name"]
+        email = request.json["email"]
+        password = request.json["password"]
+        phone = request.json["phone"]
+        user_ip = request.remote_addr
 
-    action = f"Add user: {name}"
-    admin_log(3, action, time, user_ip)
-    customer_id = create_customer(name, password, email, phone, time)
-    return jsonify(get_customer(customer_id)), 201
+        action = f"Add user: {name}"
+        admin_log(3, action, time, user_ip)
+        customer_id = create_customer(name, password, email, phone, time)
+        return jsonify(get_customer(customer_id)), 201
 
 
 @app.route("/customer/<int:customer_id>", methods=["GET"])
 def get_customer_by_id(customer_id):
-    customer = get_customer(customer_id)
-    if customer is None:
-        return "", 404
-    return jsonify(customer), 200
+    if len(user_information) != 0:
+        customer = get_customer(customer_id)
+        if customer is None:
+            return "", 404
+        return jsonify(customer), 200
 
 
 @app.route("/customer/<int:customer_id>", methods=["PUT"])
 def update_customer_by_id(customer_id):
-    name = request.json["username"]
-    password = request.json["password"]
-    email = request.json["email"]
-    phone = request.json["phone"]
-    user_ip = request.remote_addr
+    if len(user_information) != 0:
+        name = request.json["username"]
+        password = request.json["password"]
+        email = request.json["email"]
+        phone = request.json["phone"]
+        user_ip = request.remote_addr
 
     updated = update_customer(customer_id, name, password, email, phone)
     action = f"Update user: {name}"
@@ -223,10 +237,11 @@ def get_username(customer_id):
 
 @app.route("/customer/<int:customer_id>", methods=["DELETE"])
 def delete_customer_by_id(customer_id):
-    username = get_username(customer_id)
-    user_ip = request.remote_addr
+    if len(user_information) != 0:
+        username = get_username(customer_id)
+        user_ip = request.remote_addr
 
-    delete_customer(customer_id)
-    action = f"Delete user: {username}"
-    admin_log(3, action, time, user_ip)
-    return jsonify({"id": customer_id}), 200
+        delete_customer(customer_id)
+        action = f"Delete user: {username}"
+        admin_log(3, action, time, user_ip)
+        return jsonify({"id": customer_id}), 200

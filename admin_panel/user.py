@@ -5,14 +5,14 @@ import connect_db as connect_db
 from datetime import datetime
 import re
 import os
+import admin_panel.user_login as user_login
 
+user_information = user_login.user_information
 app = connect_db.app
 
 
 cors = CORS(app)
 app.config["UPLOAD_FOLDER"] = "static/img/"
-
-text = "Super Admin"
 
 
 def get_db_connection():
@@ -80,7 +80,7 @@ def get_user(user_id):
 def get_all_user(limit):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM Users LIMIT " + str(limit))
+    cur.execute(f"SELECT * FROM Users WHERE role != ? LIMIT {limit}", ("Super Admin",))
     users = cur.fetchall()
     final_users = []
     for user in users:
@@ -102,8 +102,8 @@ def get_all_user_filter(name, search, limit):
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute(
-        f"SELECT * FROM Users WHERE {name} = ? LIMIT {limit}",
-        (search,),
+        f"SELECT * FROM Users WHERE {name} = ? AND role != ? LIMIT {limit}",
+        (search, "Super Admin",),
     )
     users = cur.fetchall()
     final_users = []
@@ -128,7 +128,9 @@ def create_user(
     email,
     role,
 ):
-    if text == "Super Admin":
+    role2 = user_information[4]
+
+    if role2 == "Super Admin":
         conn = get_db_connection()
         cur = conn.cursor()
         cur.execute(
@@ -154,7 +156,9 @@ def update_user(
     role,
     user_id,
 ):
-    if text == "Super Admin":
+    role2 = user_information[4]
+
+    if role2 == "Super Admin":
         conn = get_db_connection()
         cur = conn.cursor()
         cur.execute(
@@ -174,7 +178,9 @@ def update_user(
 
 # Delete a user
 def delete_user(user_id):
-    if text == "Super Admin":
+    role2 = user_information[4]
+
+    if role2 == "Super Admin":
         conn = get_db_connection()
         cur = conn.cursor()
         cur.execute("DELETE FROM Users WHERE user_id = ?", (user_id,))
@@ -185,80 +191,85 @@ def delete_user(user_id):
 # CRUD routes
 @app.route("/user/", methods=["GET"])
 def list_user():
-    range = request.args.get("range")
-    x = re.split(",", range)
-    final_range = re.split("]", x[1])[0]
-    get_filter = request.args.get("filter")
-    user = get_all_user(int(final_range) + 1)
-    response = jsonify(user)
-    if len(get_filter) > 2:
-        name = re.split(r""":""", get_filter)
-        name2 = re.split(r"""^{\"""", name[0])
-        name2 = re.split(r"""\"$""", name2[1])
-        regex_filter = re.split(rf'"{name2[0]}":"(.*?)"', get_filter)
+    if len(user_information) != 0:
+        range = request.args.get("range")
+        x = re.split(",", range)
+        final_range = re.split("]", x[1])[0]
+        get_filter = request.args.get("filter")
+        user = get_all_user(int(final_range) + 1)
+        response = jsonify(user)
+        if len(get_filter) > 2:
+            name = re.split(r""":""", get_filter)
+            name2 = re.split(r"""^{\"""", name[0])
+            name2 = re.split(r"""\"$""", name2[1])
+            regex_filter = re.split(rf'"{name2[0]}":"(.*?)"', get_filter)
 
-        response = jsonify(
-            get_all_user_filter(
-                name2[0],
-                regex_filter[1],
-                int(final_range) + 1,
-            ),
-        )
+            response = jsonify(
+                get_all_user_filter(
+                    name2[0],
+                    regex_filter[1],
+                    int(final_range) + 1,
+                ),
+            )
 
-    response.headers["Access-Control-Expose-Headers"] = "Content-Range"
-    response.headers["Content-Range"] = len(user)
+        response.headers["Access-Control-Expose-Headers"] = "Content-Range"
+        response.headers["Content-Range"] = len(user)
 
-    return response
+        return response
 
 
 @app.route("/user", methods=["POST"])
 def add_user():
-    username = request.json["username"]
-    password = request.json["password"]
-    email = request.json["email"]
-    role = request.json["role"]
+    if len(user_information) !=0:
+        username = request.json["username"]
+        password = request.json["password"]
+        email = request.json["email"]
+        role = request.json["role"]
 
-    userlist = create_user(
-        username,
-        password,
-        email,
-        role,
-    )
-    save_data_route()
+        userlist = create_user(
+            username,
+            password,
+            email,
+            role,
+        )
+        save_data_route()
 
-    return jsonify(get_user(userlist)), 201
+        return jsonify(get_user(userlist)), 201
 
 
 @app.route("/user/<int:user_id>", methods=["GET"])
 def get_user_by_id(user_id):
-    user = get_user(user_id)
-    if user is None:
-        return "", 404
-    return jsonify(user), 200
+    if len(user_information) !=0:
+        user = get_user(user_id)
+        if user is None:
+            return "", 404
+        return jsonify(user), 200
 
 
 @app.route("/user/<int:user_id>", methods=["PUT"])
 def update_user_by_id(user_id):
-    username = request.json["username"]
-    password = request.json["password"]
-    email = request.json["email"]
-    role = request.json["role"]
+    if len(user_information) !=0:
+        username = request.json["username"]
+        password = request.json["password"]
+        email = request.json["email"]
+        role = request.json["role"]
 
-    updated = update_user(
-        username,
-        password,
-        email,
-        role,
-        user_id,
-    )
-    save_data_route()
+        updated = update_user(
+            username,
+            password,
+            email,
+            role,
+            user_id,
+        )
+        save_data_route()
 
-    return jsonify(updated), 200
+        return jsonify(updated), 200
 
 
 @app.route("/user/<int:user_id>", methods=["DELETE"])
 def delete_user_by_id(user_id):
-    delete_user(user_id)
-    save_data_route()
+    if len(user_information) !=0:
+        delete_user(user_id)
+        save_data_route()
 
-    return jsonify({"id": user_id}), 200
+        return jsonify({"id": user_id}), 200

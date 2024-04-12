@@ -5,6 +5,7 @@ import {
   TextInput,
   DateInput,
   required,
+  SelectInput,
 } from "react-admin";
 
 export const UserCreate = () => (
@@ -19,7 +20,14 @@ export const UserCreate = () => (
         fullWidth
       />
       <TextInput source="email" multiline={true} label="email" fullWidth />
-      <TextInput source="role" multiline={true} label="role" fullWidth />
+      
+      <SelectInput
+        source="role"
+        choices={[
+          { id: "Admin", name: "Admin" },
+          { id: "RegularAdmin", name: "RegularAdmin"}
+        ]}
+      />
     </SimpleForm>
   </Create>
 );

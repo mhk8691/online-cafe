@@ -1,5 +1,6 @@
 import { AuthProvider, HttpError } from "react-admin";
 import data from "./users.json";
+  import axios from "axios";
 
 /**
  * This authProvider is only for test purposes. Don't use it in production.
@@ -36,9 +37,12 @@ export const authProvider: AuthProvider = {
   getIdentity: () => {
     const persistedUser = localStorage.getItem("user");
     const user = persistedUser ? JSON.parse(persistedUser) : null;
-
+    
     return Promise.resolve(user);
+    
   },
+  
 };
 
 export default authProvider;
+

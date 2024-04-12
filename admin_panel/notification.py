@@ -8,7 +8,9 @@ import re
 app = connect_db.app
 
 time = datetime.today().strftime("%Y-%m-%d")
+import admin_panel.user_login as user_login
 
+user_information = user_login.user_information
 
 def get_db_connection():
     conn = sqlite3.connect("onlineShop.db")
@@ -107,38 +109,40 @@ def get_all_notification_filter(name, search, limit):
 
 @app.route("/Notification/<int:notification_id>", methods=["GET"])
 def get_notification_by_id(notification_id):
-    feedback = get_notification(notification_id)
-    if feedback is None:
-        return "", 404
-    return jsonify(feedback), 200
+    if len(user_information) !=0:
+        feedback = get_notification(notification_id)
+        if feedback is None:
+            return "", 404
+        return jsonify(feedback), 200
 
 
 @app.route("/Notification/", methods=["GET"])
 def list_notification():
-    range = request.args.get("range")
-    x = re.split(",", range)
-    final_range = re.split("]", x[1])[0]
-    get_filter = request.args.get("filter")
-    notif = get_all_notification(int(final_range) + 1)
-    response = jsonify(notif)
-    if len(get_filter) > 2:
-        name = re.split(r""":""", get_filter)
-        name2 = re.split(r"""^{\"""", name[0])
-        name2 = re.split(r"""\"$""", name2[1])
-        regex_filter = re.split(rf'"{name2[0]}":"(.*?)"', get_filter)
+    if len(user_information) !=0:
+        range = request.args.get("range")
+        x = re.split(",", range)
+        final_range = re.split("]", x[1])[0]
+        get_filter = request.args.get("filter")
+        notif = get_all_notification(int(final_range) + 1)
+        response = jsonify(notif)
+        if len(get_filter) > 2:
+            name = re.split(r""":""", get_filter)
+            name2 = re.split(r"""^{\"""", name[0])
+            name2 = re.split(r"""\"$""", name2[1])
+            regex_filter = re.split(rf'"{name2[0]}":"(.*?)"', get_filter)
 
-        response = jsonify(
-            get_all_notification_filter(
-                name2[0],
-                regex_filter[1],
-                int(final_range) + 1,
-            ),
-        )
+            response = jsonify(
+                get_all_notification_filter(
+                    name2[0],
+                    regex_filter[1],
+                    int(final_range) + 1,
+                ),
+            )
 
-    response.headers["Access-Control-Expose-Headers"] = "Content-Range"
-    response.headers["Content-Range"] = len(notif)
+        response.headers["Access-Control-Expose-Headers"] = "Content-Range"
+        response.headers["Content-Range"] = len(notif)
 
-    return response
+        return response
 
 
 def get_id(username):
@@ -151,11 +155,12 @@ def get_id(username):
 
 @app.route("/Notification", methods=["POST"])
 def add_notification():
-    username = request.json["username"]
-    message = request.json["message"]
-    id = get_id(username)
-    notificationـid = create_notification(id, message, time, "Unread")
-    return jsonify(get_notification(notificationـid)), 201
+    if len(user_information) !=0:
+        username = request.json["username"]
+        message = request.json["message"]
+        id = get_id(username)
+        notificationـid = create_notification(id, message, time, "Unread")
+        return jsonify(get_notification(notificationـid)), 201
 
 
 # Delete a customer
@@ -173,6 +178,6 @@ def delete_notification(notificationـid):
 
 @app.route("/Notification/<int:notification_id>", methods=["DELETE"])
 def delete_notification_by_id(notification_id):
-
-    delete_notification(notification_id)
-    return jsonify({"id": notification_id}), 200
+    if len(user_information) !=0:
+        delete_notification(notification_id)
+        return jsonify({"id": notification_id}), 200

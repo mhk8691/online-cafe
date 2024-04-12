@@ -6,12 +6,12 @@ from datetime import datetime
 import re
 from fileinput import filename
 import os
-
+import admin_panel.user_login as user_login
 
 app = connect_db.app
 
-text = "Super Admin"
 
+user_information = user_login.user_information
 cors = CORS(app)
 UPLOAD_FOLDER = "static/img/"
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
@@ -174,7 +174,9 @@ def get_all_product_filter(name, search, limit):
 
 # Create a new product
 def create_product(name, description, price, categories_id, picture):
-    if text == "Admin" or text == "Super Admin":
+    role = user_information[4]
+
+    if role == "Admin" or role == "Super Admin":
         conn = get_db_connection()
         cur = conn.cursor()
 
@@ -190,7 +192,9 @@ def create_product(name, description, price, categories_id, picture):
 
 # Update a product
 def update_product(name, description, price, categories_id, product_id):
-    if text == "Admin" or text == "Super Admin":
+    role = user_information[4]
+
+    if role == "Admin" or role == "Super Admin":
         conn = get_db_connection()
         cur = conn.cursor()
         cur.execute(
@@ -210,7 +214,9 @@ def update_product(name, description, price, categories_id, product_id):
 
 # Delete a product
 def delete_product(product_id):
-    if text == "Admin" or text == "Super Admin":
+    role = user_information[4]
+
+    if role == "Admin" or role == "Super Admin":
         conn = get_db_connection()
         cur = conn.cursor()
         cur.execute("DELETE FROM products WHERE product_id = ?", (product_id,))
@@ -222,90 +228,94 @@ def delete_product(product_id):
 # CRUD routes
 @app.route("/product/", methods=["GET"])
 def list_product():
+    if len(user_information) != 0:
+        range = request.args.get("range")
+        x = re.split(",", range)
+        final_range = re.split("]", x[1])[0]
+        get_filter = request.args.get("filter")
+        product = get_all_product(int(final_range) + 1)
+        response = jsonify(product)
+        if len(get_filter) > 2:
+            name = re.split(r""":""", get_filter)
+            name2 = re.split(r"""^{\"""", name[0])
+            name2 = re.split(r"""\"$""", name2[1])
+            regex_filter = re.split(rf'"{name2[0]}":"(.*?)"', get_filter)
 
-    range = request.args.get("range")
-    x = re.split(",", range)
-    final_range = re.split("]", x[1])[0]
-    get_filter = request.args.get("filter")
-    product = get_all_product(int(final_range) + 1)
-    response = jsonify(product)
-    if len(get_filter) > 2:
-        name = re.split(r""":""", get_filter)
-        name2 = re.split(r"""^{\"""", name[0])
-        name2 = re.split(r"""\"$""", name2[1])
-        regex_filter = re.split(rf'"{name2[0]}":"(.*?)"', get_filter)
+            response = jsonify(
+                get_all_product_filter(
+                    name2[0],
+                    regex_filter[1],
+                    int(final_range) + 1,
+                ),
+            )
 
-        response = jsonify(
-            get_all_product_filter(
-                name2[0],
-                regex_filter[1],
-                int(final_range) + 1,
-            ),
-        )
+        response.headers["Access-Control-Expose-Headers"] = "Content-Range"
+        response.headers["Content-Range"] = len(product)
 
-    response.headers["Access-Control-Expose-Headers"] = "Content-Range"
-    response.headers["Content-Range"] = len(product)
-
-    return response
+        return response
 
 
 @app.route("/product", methods=["POST"])
 def add_product():
-    name = request.json["name"]
-    description = request.json["description"]
-    price = request.json["price"]
-    categories_id = request.json["categories_id"]
-    # image = request.json["pictures"]
-    # url = image["src"] + "/" + image["title"]
-    # print(image)
-    user_ip = request.remote_addr
+    if len(user_information) != 0:
+        name = request.json["name"]
+        description = request.json["description"]
+        price = request.json["price"]
+        categories_id = request.json["categories_id"]
+        # image = request.json["pictures"]
+        # url = image["src"] + "/" + image["title"]
+        # print(image)
+        user_ip = request.remote_addr
 
-    action = f"Add product: {name}"
-    admin_log(3, action, time, user_ip)
-    print(categories_id)
-    product_id = create_product(name, description, price, categories_id, "image")
-    return (
-        jsonify(
-            get_product(product_id),
-        ),
-        201,
-    )
+        action = f"Add product: {name}"
+        admin_log(3, action, time, user_ip)
+        print(categories_id)
+        product_id = create_product(name, description, price, categories_id, "image")
+        return (
+            jsonify(
+                get_product(product_id),
+            ),
+            201,
+        )
 
 
 @app.route("/product/<int:product_id>", methods=["GET"])
 def get_product_by_id(product_id):
-    product = get_product(product_id)
-    if product is None:
-        return "", 404
-    return jsonify(product), 200
+    if len(user_information) != 0:
+        product = get_product(product_id)
+        if product is None:
+            return "", 404
+        return jsonify(product), 200
 
 
 def get_category_id(categories_name):
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute(
-        "SELECT category_id FROM Categories  WHERE Categories.name = ?",
-        (categories_name,),
-    )
-    category_id = cur.fetchone()
-    for cat in category_id:
-        final_category_id = cat
-    print(final_category_id)
-    return final_category_id
+    if len(user_information) != 0:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT category_id FROM Categories  WHERE Categories.name = ?",
+            (categories_name,),
+        )
+        category_id = cur.fetchone()
+        for cat in category_id:
+            final_category_id = cat
+        print(final_category_id)
+        return final_category_id
 
 
 @app.route("/product/<int:product_id>", methods=["PUT"])
 def update_product_by_id(product_id):
-    name = request.json["name"]
-    description = request.json["description"]
-    price = request.json["price"]
-    categories_id = request.json["categories_id"]
-    user_ip = request.remote_addr
+    if len(user_information) != 0:
+        name = request.json["name"]
+        description = request.json["description"]
+        price = request.json["price"]
+        categories_id = request.json["categories_id"]
+        user_ip = request.remote_addr
 
-    action = f"Update product: {name}"
-    admin_log(3, action, time, user_ip)
-    updated = update_product(name, description, price, categories_id, product_id)
-    return jsonify(updated), 200
+        action = f"Update product: {name}"
+        admin_log(3, action, time, user_ip)
+        updated = update_product(name, description, price, categories_id, product_id)
+        return jsonify(updated), 200
 
 
 def get_name(product_id):
@@ -321,9 +331,10 @@ def get_name(product_id):
 
 @app.route("/product/<int:product_id>", methods=["DELETE"])
 def delete_product_by_id(product_id):
-    user_ip = request.remote_addr
-    name = get_name(product_id)
-    action = f"Delete product: {name}"
-    admin_log(3, action, time, user_ip)
-    delete_product(product_id)
-    return jsonify({"id": product_id}), 200
+    if len(user_information) != 0:
+        user_ip = request.remote_addr
+        name = get_name(product_id)
+        action = f"Delete product: {name}"
+        admin_log(3, action, time, user_ip)
+        delete_product(product_id)
+        return jsonify({"id": product_id}), 200
