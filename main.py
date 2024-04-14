@@ -161,7 +161,6 @@ def shipping_address():
             ),
         )
         shipping_list = connection.fetchall()
-        print(len(shipping_list))
         if len(shipping_list) == 0:
             connection.execute(
                 """ INSERT INTO Shipping_Addresses(customer_id,recipient_name,address_line1,address_line2,city,state,postal_code,country)

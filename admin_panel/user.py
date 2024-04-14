@@ -21,39 +21,6 @@ def get_db_connection():
     return conn
 
 
-def get_data_from_database():
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM Users")
-    data = cursor.fetchall()
-    conn.close()
-    # تبدیل داده‌ها به یک لیست از دیکشنری‌ها
-
-    data_json = [
-        {
-            "id": row[0],
-            "username": row[1],
-            "password": row[2],
-            "email": row[3],
-            "role": row[4],
-        }
-        for row in data
-    ]
-    return {"users": data_json}
-
-
-def save_data_to_json(data):
-    save_path = os.path.join(os.getcwd(), "shop-admin", "src", "users.json")
-    os.remove(save_path)
-    with open(save_path, "w") as f:
-        json.dump(data, f, indent=4)
-
-
-def save_data_route():
-    data = get_data_from_database()
-    save_data_to_json(data)
-    print("hello")
-    return jsonify({"message": "Data saved to JSON file successfully!"})
 
 
 # Get a user by ID
@@ -243,7 +210,6 @@ def add_user():
             email,
             role,
         )
-        save_data_route()
 
         return jsonify(get_user(userlist)), 201
 
@@ -272,7 +238,6 @@ def update_user_by_id(user_id):
             role,
             user_id,
         )
-        save_data_route()
 
         return jsonify(updated), 200
 
@@ -281,6 +246,5 @@ def update_user_by_id(user_id):
 def delete_user_by_id(user_id):
     if len(user_information) !=0:
         delete_user(user_id)
-        save_data_route()
 
         return jsonify({"id": user_id}), 200

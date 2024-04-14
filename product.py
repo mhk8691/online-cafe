@@ -285,8 +285,20 @@ def user_cart():
                         "country": list[8],
                     }
                 )
+        else:
+            shipping_address_defult.append(
+                {
+                    "recipient_name": "",
+                    "address_line1": "",
+                    "address_line2": "",
+                    "city": "",
+                    "state": "",
+                    "postal_code": "",
+                    "country": "",
+                }
+            )
 
-            print(shipping_address_defult)
+            # print(shipping_address_defult)
 
         notification_user2 = notification_Unread()
 

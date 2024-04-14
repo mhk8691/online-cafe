@@ -137,6 +137,7 @@ def get_all_product(limit):
                     "category_name": name2,
                 }
             )
+    save_data_route()
     conn.close()
     return final_products
 
