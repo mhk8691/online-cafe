@@ -68,10 +68,10 @@ def get_shipping(address_id):
 
 
 # Get all shipping
-def get_all_shipping(limit):
+def get_all_shipping(limit,sort):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM Shipping_Addresses LIMIT " + str(limit))
+    cur.execute(f"SELECT * FROM Shipping_Addresses order by {sort} LIMIT " + str(limit))
     shippings = cur.fetchall()
     final_shipping = []
     for shipping in shippings:
@@ -99,11 +99,11 @@ def get_all_shipping(limit):
     return final_shipping
 
 
-def get_all_shipping_filter(name, search, limit):
+def get_all_shipping_filter(name, search, limit,sort):
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute(
-        f"SELECT * FROM Shipping_Addresses WHERE {name} = ? LIMIT {limit}",
+        f"SELECT * FROM Shipping_Addresses WHERE {name} = ?  order by {sort}  LIMIT {limit}",
         (search,),
     )
     shippings = cur.fetchall()
@@ -187,10 +187,20 @@ def delete_shipping(address_id):
 def list_shipping():
     if len(user_information) !=0:
         range = request.args.get("range")
-        x = re.split(",", range)
-        final_range = re.split("]", x[1])[0]
+        sort = request.args.get("sort")
         get_filter = request.args.get("filter")
-        shipping = get_all_shipping(int(final_range) + 1)
+
+        final_range = json.loads(range)
+        final_sort = json.loads(sort)
+        
+        if final_sort[0] == "id":
+            final_sort[0] = "address_id"
+        if final_sort[0] == "customer_name":
+            final_sort[0] = "customer_id"
+        final_sort2 = final_sort[0] + " " + final_sort[1]
+        
+        
+        shipping = get_all_shipping(int(final_range[1]) + 1, final_sort2)
         response = jsonify(shipping)
         if len(get_filter) > 2:
             name = re.split(r""":""", get_filter)
@@ -200,9 +210,7 @@ def list_shipping():
 
             response = jsonify(
                 get_all_shipping_filter(
-                    name2[0],
-                    regex_filter[1],
-                    int(final_range) + 1,
+                    name2[0], regex_filter[1], int(final_range[1]) + 1, final_sort2
                 ),
             )
 

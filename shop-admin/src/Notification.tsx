@@ -41,7 +41,7 @@ export const NotificationList = () => (
     <ListToolbar />
     <Datagrid rowClick="create">
       <NumberField source="id" />
-      <TextField source="customer_id" />
+      <TextField source="customer_name" />
       <TextField source="message" />
       <NumberField source="created_at" />
       <TextField source="status" />

@@ -108,12 +108,12 @@ def delete_customer(customer_id):
 
 
 # Get all customers
-def get_all_customers(limit):
-    
+def get_all_customers(limit, sort):
+
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute(
-        "SELECT * FROM customers LIMIT ?",
+        f"SELECT * FROM customers order by {sort} LIMIT ? ",
         (str(limit),),
     )
     customers = cur.fetchall()
@@ -132,11 +132,11 @@ def get_all_customers(limit):
     return final_customers
 
 
-def get_all_customers_filter(name, search, limit):
+def get_all_customers_filter(name, search, limit, sort):
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute(
-        f"SELECT * FROM customers   WHERE {name} = ? LIMIT {limit}",
+        f"SELECT * FROM customers   WHERE {name} = ? order by {sort} LIMIT {limit}",
         (search,),
     )
     customers = cur.fetchall()
@@ -160,22 +160,26 @@ def get_all_customers_filter(name, search, limit):
 def list_customer():
     if len(user_information) != 0:
         range = request.args.get("range")
-        x = re.split(",", range)
-        final_range = re.split("]", x[1])[0]
+        sort = request.args.get("sort")
         get_filter = request.args.get("filter")
-        customers = get_all_customers(int(final_range) + 1)
+
+        final_range = json.loads(range)
+        final_sort = json.loads(sort)
+        if final_sort[0] == "id":
+            final_sort[0] = "customer_id"
+        final_sort2 = final_sort[0] + " " + final_sort[1]
+        print(final_sort2)
+        customers = get_all_customers(int(final_range[1]) + 1, final_sort2)
         response = jsonify(customers)
         if len(get_filter) > 2:
+
             name = re.split(r""":""", get_filter)
             name2 = re.split(r"""^{\"""", name[0])
             name2 = re.split(r"""\"$""", name2[1])
             regex_filter = re.split(rf'"{name2[0]}":"(.*?)"', get_filter)
-
             response = jsonify(
                 get_all_customers_filter(
-                    name2[0],
-                    regex_filter[1],
-                    int(final_range) + 1,
+                    name2[0], regex_filter[1], int(final_range[1]) + 1, final_sort2
                 ),
             )
 

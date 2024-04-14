@@ -42,11 +42,11 @@ def get_payment(payment_id):
 
 
 # Get all products
-def get_all_payment(limit):
+def get_all_payment(limit,sort):
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute(
-        "SELECT * FROM Payments LIMIT ?   ",
+        f"SELECT * FROM Payments order by {sort} LIMIT ?   ",
         (limit,),
     )
     payments = cur.fetchall()
@@ -66,11 +66,11 @@ def get_all_payment(limit):
     return final_payments
 
 
-def get_all_payment_filter(name, search, limit):
+def get_all_payment_filter(name, search, limit,sort):
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute(
-        f"SELECT * FROM Payments   WHERE {name} = ? LIMIT {limit}",
+        f"SELECT * FROM Payments   WHERE {name} = ? order by {sort} LIMIT {limit}",
         (search,),
     )
     payments = cur.fetchall()
@@ -94,10 +94,19 @@ def get_all_payment_filter(name, search, limit):
 def list_payment():
     if len(user_information) !=0:
         range = request.args.get("range")
-        x = re.split(",", range)
-        final_range = re.split("]", x[1])[0]
+        sort = request.args.get("sort")
         get_filter = request.args.get("filter")
-        payment = get_all_payment(int(final_range) + 1)
+
+        final_range = json.loads(range)
+        final_sort = json.loads(sort)
+
+        if final_sort[0] == "id":
+            final_sort[0] = "payment_id"
+        
+
+        final_sort2 = final_sort[0] + " " + final_sort[1]
+
+        payment = get_all_payment(int(final_range[1]) + 1, final_sort2)
         response = jsonify(payment)
         if len(get_filter) > 2:
             name = re.split(r""":""", get_filter)
@@ -107,9 +116,7 @@ def list_payment():
 
             response = jsonify(
                 get_all_payment_filter(
-                    name2[0],
-                    regex_filter[1],
-                    int(final_range) + 1,
+                    name2[0], regex_filter[1], int(final_range[1]) + 1, final_sort2
                 ),
             )
 

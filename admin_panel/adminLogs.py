@@ -44,11 +44,11 @@ def get_log(log_id):
 
 
 # Get all products
-def get_all_log(limit):
+def get_all_log(limit,sort):
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute(
-        "SELECT *,username FROM Admin_Logs INNER JOIN Users ON Admin_Logs.user_id = Users.user_id LIMIT ?   ",
+        f"SELECT *,username FROM Admin_Logs INNER JOIN Users ON Admin_Logs.user_id = Users.user_id order by {sort} LIMIT ?   ",
         (limit,),
     )
     logs = cur.fetchall()
@@ -69,11 +69,11 @@ def get_all_log(limit):
 
 
 # Get all products
-def get_all_log_filter(name, search, limit):
+def get_all_log_filter(name, search, limit,sort):
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute(
-        f"SELECT *,username FROM Admin_Logs INNER JOIN Users ON Admin_Logs.user_id = Users.user_id  WHERE {name} = ? LIMIT {limit}",
+        f"SELECT *,username FROM Admin_Logs INNER JOIN Users ON Admin_Logs.user_id = Users.user_id  WHERE {name} = ? order by {sort} LIMIT {limit}",
         (search,),
     )
     logs = cur.fetchall()
@@ -97,10 +97,19 @@ def get_all_log_filter(name, search, limit):
 def list_log():
     if len(user_information) !=0:
         range = request.args.get("range")
-        x = re.split(",", range)
-        final_range = re.split("]", x[1])[0]
+        sort = request.args.get("sort")
         get_filter = request.args.get("filter")
-        log = get_all_log(int(final_range) + 1)
+
+        final_range = json.loads(range)
+        final_sort = json.loads(sort)
+
+        if final_sort[0] == "id":
+            final_sort[0] = "log_id"
+        if final_sort[0] == "username":
+            final_sort[0] = "user_id"
+
+        final_sort2 = final_sort[0] + " " + final_sort[1]
+        log = get_all_log(int(final_range[1]) + 1, final_sort2)
         response = jsonify(log)
         if len(get_filter) > 2:
             name = re.split(r""":""", get_filter)
@@ -110,9 +119,7 @@ def list_log():
 
             response = jsonify(
                 get_all_log_filter(
-                    name2[0],
-                    regex_filter[1],
-                    int(final_range) + 1,
+                    name2[0], regex_filter[1], int(final_range[1]) + 1, final_sort2
                 ),
             )
 

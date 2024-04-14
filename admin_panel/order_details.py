@@ -57,7 +57,7 @@ def get_all_order_details_filter(name, search, limit):
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute(
-        f"SELECT *,name  FROM Order_Details INNER JOIN Products ON Products.product_id =Order_Details.product_id WHERE {name} = ? LIMIT {limit} ",
+        f"SELECT *,name  FROM Order_Details INNER JOIN Products ON Products.product_id =Order_Details.product_id WHERE {name} = ?  LIMIT {limit} ",
         (search,),
     )
     Order_Details = cur.fetchall()
@@ -89,12 +89,15 @@ def get_all_order_details_filter(name, search, limit):
 def list_order_details():
     if len(user_information) !=0:
         range = request.args.get("range")
-        x = re.split(",", range)
-        final_range = re.split("]", x[1])[0]
         get_filter = request.args.get("filter")
-        final_range2 = int(final_range) + 1
-        print(final_range2)
-        order_details = get_all_order_details(final_range2)
+
+        final_range = json.loads(range)
+
+        
+        
+
+
+        order_details = get_all_order_details(int(final_range[1]) + 1, )
         response = jsonify(order_details)
         if len(get_filter) > 2:
             name = re.split(r""":""", get_filter)
@@ -104,9 +107,7 @@ def list_order_details():
 
             response = jsonify(
                 get_all_order_details_filter(
-                    name2[0],
-                    regex_filter[1],
-                    int(final_range) + 1,
+                    name2[0], regex_filter[1], int(final_range[1]) + 1
                 ),
             )
 

@@ -51,11 +51,11 @@ def get_feedback(feedback_id):
 
 
 # Get all feedback
-def get_all_feedback(limit):
+def get_all_feedback(limit,sort):
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute(
-        "SELECT *,username FROM Feedback INNER JOIN Customers ON Customers.customer_id = Feedback.customer_id   LIMIT ?",
+        f"SELECT *,username FROM Feedback INNER JOIN Customers ON Customers.customer_id = Feedback.customer_id  order by {sort} LIMIT ?",
         (str(limit),),
     )
     feedbacks = cur.fetchall()
@@ -76,17 +76,16 @@ def get_all_feedback(limit):
     return final_feedback
 
 
-def get_all_feedback_filter(name, search, limit):
+def get_all_feedback_filter(name, search, limit,sort):
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute(
-        f"SELECT *,username FROM Feedback INNER JOIN Customers ON Customers.customer_id = Feedback.customer_id  WHERE {name} = ? LIMIT {limit}",
+        f"SELECT *,username FROM Feedback INNER JOIN Customers ON Customers.customer_id = Feedback.customer_id  WHERE {name} = ? order by {sort} LIMIT {limit}",
         (search,),
     )
     feedbacks = cur.fetchall()
     final_feedback = []
     for feedback in feedbacks:
-      
 
         final_feedback.append(
             {
@@ -117,10 +116,19 @@ def get_feedback_by_id(feedback_id):
 def list_feedback():
     if len(user_information) !=0:
         range = request.args.get("range")
-        x = re.split(",", range)
-        final_range = re.split("]", x[1])[0]
+        sort = request.args.get("sort")
         get_filter = request.args.get("filter")
-        feedback = get_all_feedback(int(final_range) + 1)
+
+        final_range = json.loads(range)
+        final_sort = json.loads(sort)
+
+        if final_sort[0] == "id":
+            final_sort[0] = "feedback_id"
+        if final_sort[0] == "customer_name":
+            final_sort[0] = "customer_id"
+
+        final_sort2 = final_sort[0] + " " + final_sort[1]
+        feedback = get_all_feedback(int(final_range[1]) + 1, final_sort2)
         response = jsonify(feedback)
         if len(get_filter) > 2:
             name = re.split(r""":""", get_filter)
@@ -130,9 +138,7 @@ def list_feedback():
 
             response = jsonify(
                 get_all_feedback_filter(
-                    name2[0],
-                    regex_filter[1],
-                    int(final_range) + 1,
+                    name2[0], regex_filter[1], int(final_range[1]) + 1, final_sort2
                 ),
             )
 

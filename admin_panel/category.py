@@ -60,10 +60,10 @@ def get_category(category_id):
 
 
 # Get all products
-def get_all_category(limit):
+def get_all_category(limit, sort):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM Categories LIMIT " + str(limit))
+    cur.execute(f"SELECT * FROM Categories order by {sort} LIMIT {str(limit)}")
     categories = cur.fetchall()
     final_categories = []
     for category in categories:
@@ -82,11 +82,11 @@ def get_all_category(limit):
 
 
 # Get all products
-def get_all_category_filter(name, search, limit):
+def get_all_category_filter(name, search, limit, sort):
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute(
-        f"SELECT * FROM Categories WHERE {name} = ? LIMIT {limit}",
+        f"SELECT * FROM Categories WHERE {name} = ? order by {sort} LIMIT {limit}",
         (search,),
     )
     categories = cur.fetchall()
@@ -158,13 +158,20 @@ def delete_category(category_id):
 # CRUD routes
 @app.route("/category/", methods=["GET"])
 def list_category():
-    if len(user_information) !=0:
+    if len(user_information) != 0:
 
         range = request.args.get("range")
-        x = re.split(",", range)
-        final_range = re.split("]", x[1])[0]
+        sort = request.args.get("sort")
         get_filter = request.args.get("filter")
-        category = get_all_category(int(final_range) + 1)
+
+        final_range = json.loads(range)
+        final_sort = json.loads(sort)
+        if final_sort[0] == "id":
+            final_sort[0] = "category_id"
+        if final_sort[0] == "name":
+            final_sort[0] = "category_name"
+        final_sort2 = final_sort[0] + " " + final_sort[1]
+        category = get_all_category(int(final_range[1]) + 1, final_sort2)
         response = jsonify(category)
         if len(get_filter) > 2:
             name = re.split(r""":""", get_filter)
@@ -174,9 +181,7 @@ def list_category():
 
             response = jsonify(
                 get_all_category_filter(
-                    name2[0],
-                    regex_filter[1],
-                    int(final_range) + 1,
+                    name2[0], regex_filter[1], int(final_range[1]) + 1, final_sort2
                 ),
             )
 
@@ -206,7 +211,7 @@ def add_category():
 
 @app.route("/category/<int:category_id>", methods=["GET"])
 def get_category_by_id(category_id):
-    if len(user_information) !=0:
+    if len(user_information) != 0:
         category = get_category(category_id)
         if category is None:
             return "", 404
@@ -215,7 +220,7 @@ def get_category_by_id(category_id):
 
 @app.route("/category/<int:category_id>", methods=["PUT"])
 def update_category_by_id(category_id):
-    if len(user_information) !=0:
+    if len(user_information) != 0:
         name = request.json["name"]
         description = request.json["description"]
         parent_category_id = request.json["parent_category_id"]

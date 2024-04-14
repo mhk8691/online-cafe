@@ -86,15 +86,15 @@ def customer_id(order_id):
 
 
 # Get all order
-def get_all_order(limit):
+def get_all_order(limit,sort):
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute(
-        """SELECT order_id,Customers.username,order_date,total_amount,status
+        f"""SELECT order_id,Customers.username,order_date,total_amount,status
         FROM Orders
         INNER JOIN Customers
          ON Customers.customer_id = Orders.customer_id
-        
+        order by {sort}
         LIMIT """
         + str(limit)
     )
@@ -107,6 +107,7 @@ def get_all_order(limit):
             INNER JOIN Orders
             ON Orders.order_id = Order_Details.order_id
             WHERE Orders.order_id = ?
+            
             """,
             (order[0],),
         )
@@ -128,7 +129,7 @@ def get_all_order(limit):
 
 
 # Get all order
-def get_all_order_filter(name, search, limit):
+def get_all_order_filter(name, search, limit,sort):
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute(
@@ -136,7 +137,7 @@ def get_all_order_filter(name, search, limit):
         FROM Orders
         INNER JOIN Customers
          ON Customers.customer_id = Orders.customer_id
-            WHERE {name} = ? LIMIT {limit}
+            WHERE {name} = ? order by {sort} LIMIT {limit}
          """,
         (search,),
     )
@@ -216,10 +217,20 @@ def update_order(
 def list_order():
     if len(user_information) !=0:
         range = request.args.get("range")
-        x = re.split(",", range)
-        final_range = re.split("]", x[1])[0]
+        sort = request.args.get("sort")
         get_filter = request.args.get("filter")
-        order = get_all_order(int(final_range) + 1)
+
+        final_range = json.loads(range)
+        final_sort = json.loads(sort)
+        
+        if final_sort[0] == "id":
+            final_sort[0] = "order_id"
+        if final_sort[0] == "customer_name":
+            final_sort[0] = "customer_id"
+            
+        final_sort2 = final_sort[0] + " " + final_sort[1]
+        
+        order = get_all_order(int(final_range[1]) + 1,final_sort2)
         response = jsonify(order)
         if len(get_filter) > 2:
             name = re.split(r""":""", get_filter)
@@ -231,7 +242,8 @@ def list_order():
                 get_all_order_filter(
                     name2[0],
                     regex_filter[1],
-                    int(final_range) + 1,
+                    int(final_range[1]) + 1,
+                    final_sort2
                 ),
             )
 

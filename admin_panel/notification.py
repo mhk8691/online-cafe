@@ -12,18 +12,17 @@ import admin_panel.user_login as user_login
 
 user_information = user_login.user_information
 
+
 def get_db_connection():
     conn = sqlite3.connect("onlineShop.db")
     conn.row_factory = sqlite3.Row
     return conn
 
 
-text = "Admin"
-
-
 # Create a new customer
 def create_notification(customer_id, message, created_at, status):
-    if text == "Admin" or text == "Super Admin":
+    role = user_information[4]
+    if role == "Admin" or role == "Super Admin":
 
         conn = get_db_connection()
         cur = conn.cursor()
@@ -57,11 +56,11 @@ def get_notification(notificationـid):
 
 
 # Get all customers
-def get_all_notification(limit):
+def get_all_notification(limit, sort):
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute(
-        "SELECT * FROM Notifications LIMIT ?",
+        f"SELECT *,username FROM Notifications INNER JOIN Customers ON Notifications.customer_id = Customers.customer_id order by {sort} LIMIT ?",
         (str(limit),),
     )
     notif = cur.fetchall()
@@ -70,7 +69,7 @@ def get_all_notification(limit):
         final_notifications.append(
             {
                 "id": notif2[0],
-                "customer_id": notif2[1],
+                "customer_name": notif2[6],
                 "message": notif2[2],
                 "created_at": notif2[3],
                 "status": notif2[4],
@@ -80,15 +79,12 @@ def get_all_notification(limit):
     return final_notifications
 
 
-def get_all_notification_filter(name, search, limit):
+def get_all_notification_filter(name, search, limit, sort):
     conn = get_db_connection()
     cur = conn.cursor()
+
     cur.execute(
-        "SELECT * FROM Notifications LIMIT ?",
-        (str(limit),),
-    )
-    cur.execute(
-        f"SELECT * FROM Notifications   WHERE {name} = ? LIMIT {limit}",
+        f"SELECT *,username FROM Notifications INNER JOIN Customers ON Notifications.customer_id = Customers.customer_id   WHERE {name} = ? order by {sort} LIMIT {limit}",
         (search,),
     )
     notif = cur.fetchall()
@@ -97,7 +93,7 @@ def get_all_notification_filter(name, search, limit):
         final_notifications.append(
             {
                 "id": notif2[0],
-                "customer_id": notif2[1],
+                "customer_name": notif2[1],
                 "message": notif2[2],
                 "created_at": notif2[3],
                 "status": notif2[4],
@@ -109,7 +105,7 @@ def get_all_notification_filter(name, search, limit):
 
 @app.route("/Notification/<int:notification_id>", methods=["GET"])
 def get_notification_by_id(notification_id):
-    if len(user_information) !=0:
+    if len(user_information) != 0:
         feedback = get_notification(notification_id)
         if feedback is None:
             return "", 404
@@ -118,12 +114,21 @@ def get_notification_by_id(notification_id):
 
 @app.route("/Notification/", methods=["GET"])
 def list_notification():
-    if len(user_information) !=0:
+    if len(user_information) != 0:
         range = request.args.get("range")
-        x = re.split(",", range)
-        final_range = re.split("]", x[1])[0]
+        sort = request.args.get("sort")
         get_filter = request.args.get("filter")
-        notif = get_all_notification(int(final_range) + 1)
+
+        final_range = json.loads(range)
+        final_sort = json.loads(sort)
+
+        if final_sort[0] == "id":
+            final_sort[0] = "notificationـid"
+        if final_sort[0] == "customer_name":
+            final_sort[0] = "customer_id"
+
+        final_sort2 = final_sort[0] + " " + final_sort[1]
+        notif = get_all_notification(int(final_range[1]) + 1, final_sort2)
         response = jsonify(notif)
         if len(get_filter) > 2:
             name = re.split(r""":""", get_filter)
@@ -133,9 +138,7 @@ def list_notification():
 
             response = jsonify(
                 get_all_notification_filter(
-                    name2[0],
-                    regex_filter[1],
-                    int(final_range) + 1,
+                    name2[0], regex_filter[1], int(final_range[1]) + 1, final_sort2
                 ),
             )
 
@@ -155,7 +158,7 @@ def get_id(username):
 
 @app.route("/Notification", methods=["POST"])
 def add_notification():
-    if len(user_information) !=0:
+    if len(user_information) != 0:
         username = request.json["username"]
         message = request.json["message"]
         id = get_id(username)
@@ -165,7 +168,9 @@ def add_notification():
 
 # Delete a customer
 def delete_notification(notificationـid):
-    if text == "Admin" or text == "Super Admin":
+    role = user_information[4]
+
+    if role == "Admin" or role == "Super Admin":
         conn = get_db_connection()
         cur = conn.cursor()
         cur.execute(
@@ -178,6 +183,6 @@ def delete_notification(notificationـid):
 
 @app.route("/Notification/<int:notification_id>", methods=["DELETE"])
 def delete_notification_by_id(notification_id):
-    if len(user_information) !=0:
+    if len(user_information) != 0:
         delete_notification(notification_id)
         return jsonify({"id": notification_id}), 200
