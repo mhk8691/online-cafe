@@ -17,7 +17,7 @@ def get_db_connection():
     return conn
 
 
-@app.route("/login-admin/", methods=["POST", "GET"])
+@app.route("/admin/", methods=["POST", "GET"])
 def login_admin():
     user_information.clear()
 

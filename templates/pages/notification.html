@@ -134,11 +134,36 @@
     </div>
     <div class="col-sm-12 col-md-8">
       <div
-        class="rounded-4 border border-danger border-2 right py-5 px-4 overflow-y-auto"
+        class="rounded-4  border border-danger border-2 right py-5 px-4 overflow-y-auto"
         style="background-color: #262a2e"
       >
-        <div class="border-bottom border-2">
-          <h5 style="font-size: 17px" class="pb-2">اعلان ها</h5>
+        <div class="border-bottom border-2 d-flex justify-content-between px-2 pb-2">
+          <h5 style="font-size: 17px" class="pt-2">اعلان ها</h5>
+          <div class="d-flex align-items-center " id="not">
+              <form action="/api/data" method="DELETE">
+                <button type="submit" class="btn">
+                  <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="25"
+              height="25"
+              fill="currentColor"
+              class="bi bi-check2-all"
+              viewBox="0 0 16 16"
+              onclick="notif()"
+              
+            >
+              <path
+                d="M12.354 4.354a.5.5 0 0 0-.708-.708L5 10.293 1.854 7.146a.5.5 0 1 0-.708.708l3.5 3.5a.5.5 0 0 0 .708 0zm-4.208 7-.896-.897.707-.707.543.543 6.646-6.647a.5.5 0 0 1 .708.708l-7 7a.5.5 0 0 1-.708 0"
+              />
+              <path
+                d="m5.354 7.146.896.897-.707.707-.897-.896a.5.5 0 1 1 .708-.708"
+              />
+            </svg>
+                </button>
+              </form>
+            <h6 class=" pt-2">همه را خواندم</h6>
+
+          </div>
         </div>
         {% for i in notification_unread %}
         <div
@@ -167,5 +192,5 @@
     </div>
   </div>
 </div>
-
+<script src="../../static/js/notif.js""></script>
 {% endblock body %}

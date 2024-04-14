@@ -35,7 +35,6 @@ export const CategoriesList = () => (
       <NumberField source="parent_category_id" />
       <DateField source="created_at" />
       <TextField source="description" />
-      <ImageField source="picture" />
       <EditButton label="Edit" />
       <ShowButton label="Show" />
       <DeleteButton label="delete" />

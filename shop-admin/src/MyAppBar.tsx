@@ -19,7 +19,7 @@ const LogoutButton: React.FC = () => {
   };
 
   return (
-    <Link to="http://localhost:5000/login-admin" onClick={handleLogout}>
+    <Link to="http://localhost:5000/admin" onClick={handleLogout}>
       Logout
     </Link>
   );

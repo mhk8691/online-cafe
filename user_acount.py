@@ -394,6 +394,7 @@ def notification():
     else:
         notification_unread = notification_Unread()
         notification_read = notification_Read()
+        
         connection.execute(
             "UPDATE Notifications SET status =? WHERE customer_id = ?",
             (
@@ -408,3 +409,12 @@ def notification():
             notification_unread=notification_unread,
             notification_read=notification_read,
         )
+
+
+@app.route("/api/data", methods=["DELETE", "GET"])
+def notf():
+    connection.execute(
+        "DELETE from Notifications where customer_id = ?", (customer_information[0],)
+    )
+    conn.commit()
+    return redirect(url_for("notification"))

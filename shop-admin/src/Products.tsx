@@ -42,16 +42,6 @@ export const ProductList = () => (
       <NumberField source="price" />
       <TextField source="description" />
 
-      <ImageField
-        source="picture"
-        sx={{
-          "& img": {
-            maxWidth: 100,
-            maxHeight: 100,
-            objectFit: "contain",
-          },
-        }}
-      />
       <EditButton label="Edit" />
       <ShowButton label="Show" />
       <DeleteButton label="delete" />

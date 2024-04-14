@@ -1,3 +1,4 @@
+import base64
 from flask import Flask, request, jsonify, json
 import sqlite3
 from flask_cors import CORS, cross_origin
@@ -118,7 +119,7 @@ def get_all_product(limit):
     products = cur.fetchall()
     final_products = []
     for product in products:
-        # picture_base64 = base64.b64encode(product[4]).decode("utf-8")
+        picture_base64 = base64.b64encode(product[4]).decode("utf-8")
         cur.execute(
             "SELECT Categories.category_name FROM Categories WHERE category_id = ?",
             (product[5],),
@@ -132,7 +133,7 @@ def get_all_product(limit):
                     "name": product[1],
                     "description": product[2],
                     "price": product[3],
-                    # "picture": picture_base64,
+                    "picture": picture_base64,
                     "category_name": name2,
                 }
             )
@@ -262,14 +263,11 @@ def add_product():
         description = request.json["description"]
         price = request.json["price"]
         categories_id = request.json["categories_id"]
-        # image = request.json["pictures"]
-        # url = image["src"] + "/" + image["title"]
-        # print(image)
+        
         user_ip = request.remote_addr
 
         action = f"Add product: {name}"
         admin_log(3, action, time, user_ip)
-        print(categories_id)
         product_id = create_product(name, description, price, categories_id, "image")
         return (
             jsonify(
@@ -299,7 +297,6 @@ def get_category_id(categories_name):
         category_id = cur.fetchone()
         for cat in category_id:
             final_category_id = cat
-        print(final_category_id)
         return final_category_id
 
 
