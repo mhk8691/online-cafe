@@ -20,14 +20,14 @@ import { NotificationList } from "./Notification";
 import CustomEditGuesser from "./Custom";
 import productEdit from "./productEdit";
 import UserEdit from "./UserEdit";
-import { Route } from "react-router-dom";
-
 import {  Layout } from "react-admin";
 
 import { MyAppBar } from "./MyAppBar";
 import { JSX } from "react/jsx-runtime";
+import Dashboard from "./Dashboard";
 const MyLayout = (props: JSX.IntrinsicAttributes & LayoutProps) => <Layout {...props} appBar={MyAppBar} />;
 
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 
 
@@ -39,9 +39,11 @@ export const App = () => (
     // authProvider={authProvider}
     layout={MyLayout}
     darkTheme={{ palette: { mode: "dark" } }}
-
+    dashboard = {Dashboard}
+    
     // darkTheme={darkTheme}
   >
+    
     <Resource
       name="customer"
       list={CustomersList}

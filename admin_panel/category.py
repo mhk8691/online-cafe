@@ -189,6 +189,7 @@ def list_category():
         response.headers["Content-Range"] = len(category)
 
         return response
+    
 
 
 @app.route("/category", methods=["POST"])

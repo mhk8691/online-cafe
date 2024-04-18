@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, json, redirect
+from flask import Flask, request, jsonify, json, redirect, url_for
 import sqlite3
 from flask_cors import CORS, cross_origin
 import connect_db as connect_db
@@ -158,6 +158,7 @@ def get_all_customers_filter(name, search, limit, sort):
 # CRUD routes
 @app.route("/customer/", methods=["GET"])
 def list_customer():
+    
     if len(user_information) != 0:
         range = request.args.get("range")
         sort = request.args.get("sort")
@@ -186,7 +187,7 @@ def list_customer():
         response.headers["Access-Control-Expose-Headers"] = "Content-Range"
         response.headers["Content-Range"] = len(customers)
 
-        return response
+    return response
 
 
 @app.route("/customer", methods=["POST"])
