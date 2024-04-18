@@ -6,7 +6,7 @@ import admin_panel.admin as admin
 import base64
 import product as product
 from datetime import datetime
-import os
+# import os
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
 from reportlab.lib import colors

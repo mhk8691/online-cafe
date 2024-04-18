@@ -6,6 +6,7 @@ from flask_cors import CORS, cross_origin
 import connect_db as connect_db
 from datetime import datetime
 import re
+
 app = connect_db.app
 
 user_information = []
