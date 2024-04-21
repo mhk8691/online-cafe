@@ -14,7 +14,6 @@ import connect_db as connect_db
 from datetime import datetime
 
 
-
 import admin_panel.order
 import admin_panel.customer
 import admin_panel.product
@@ -95,3 +94,4 @@ def get_admin_kpis():
         }
 
         return jsonify(kpis), 200
+

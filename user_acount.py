@@ -50,6 +50,8 @@ def notification_Read():
             }
         )
     return notification_read
+import psycopg2
+
 
 
 customer_information = []
@@ -97,13 +99,14 @@ def signup():
         email = request.form["email"]
         phone_number = request.form["phone_number"]
         connection.execute(
-            "SELECT username FROM Customers WHERE username = '" + username + "'  "
+            "SELECT username FROM customers WHERE username = '" + username + "'  "
         )
         register = connection.fetchall()
         if len(register) == 0:
+            registration_date = time
             connection.execute(
                 "INSERT INTO Customers (username, password,email,phone,registration_date) VALUES (?, ?,?,?,?)",
-                (username, password, email, phone_number, time),
+                (username, password, email, phone_number, time,),
             )
             conn.commit()
             return redirect(url_for("login"))
@@ -155,7 +158,7 @@ def profile():
         "pages/profile.html", customer_information=customer_information
     )
 
-
+# reset password
 @app.route("/rest-password/", methods=["POST", "GET"])
 def reset_password():
     if request.method == "POST":

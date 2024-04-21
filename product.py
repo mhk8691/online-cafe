@@ -9,6 +9,8 @@ import base64
 app = connect_db.app
 customer_information = user_acount.customer_information
 
+
+
 conn = sqlite3.connect("onlineShop.db", check_same_thread=False)
 conn.row_factory = sqlite3.Row
 connection = conn.cursor()

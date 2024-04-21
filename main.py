@@ -6,10 +6,13 @@ import admin_panel.admin as admin
 import base64
 import product as product
 from datetime import datetime
-# import os
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
 from reportlab.lib import colors
+import psycopg2
+
+
+
 
 conn = sqlite3.connect("onlineShop.db", check_same_thread=False)
 conn.row_factory = sqlite3.Row
@@ -362,7 +365,6 @@ def end_payment(payment_method):
 def download_pdf():
     pdf_path = "Factor.pdf"  # مسیر فایل PDF
     return send_file(pdf_path, as_attachment=True)
-
 
 
 if __name__ == "__main__":
