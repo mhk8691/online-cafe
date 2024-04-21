@@ -1,16 +1,18 @@
 # online-shop-cafe
 
-link figma:https://www.figma.com/file/1O8LxDuIUMaNoDm4O67i3x/Untitled?type=design&node-id=0%3A1&mode=design&t=rM0VuZUXq6F7XqGb-1
+[لینک فیگما](https://www.figma.com/file/1O8LxDuIUMaNoDm4O67i3x/Untitled?type=design&node-id=0%3A1&mode=design&t=rM0VuZUXq6F7XqGb-1)
 
 ---
 
-1- ابتدا با استفاده از دستور زیر تمام کتابخانه‌های مورد نیاز را دانلود کنید:
+1- ابتدا با استفاده از دستور زیر تمام کتابخانه‌های مورد نیاز را نصب کنید:
 
 ```bash
 pip install -r requirements.txt
 ```
 
 2- حالا به مرورگر رفته و `node` را دانلود کنید.
+
+([دانلود](https://nodejs.org/en/download))
 
 3- سپس به پوشه `shop-admin` رفته و دستور زیر را وارد کنید:
 
