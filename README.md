@@ -1,44 +1,44 @@
 # online-shop-cafe
 
-[لینک فیگما](https://www.figma.com/file/1O8LxDuIUMaNoDm4O67i3x/Untitled?type=design&node-id=0%3A1&mode=design&t=rM0VuZUXq6F7XqGb-1)
+[link figma](https://www.figma.com/file/1O8LxDuIUMaNoDm4O67i3x/Untitled?type=design&node-id=0%3A1&mode=design&t=rM0VuZUXq6F7XqGb-1)
 
 ---
 
-1- ابتدا با استفاده از دستور زیر تمام کتابخانه‌های مورد نیاز را نصب کنید:
+1- First, install all required libraries using the following command:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-2- حالا به مرورگر رفته و `node` را دانلود کنید.
+2- Now go to the link below and download `node`.
 
-([دانلود](https://nodejs.org/en/download))
+([Download Link](https://nodejs.org/en/download))
 
-3- سپس به پوشه `shop-admin` رفته و دستور زیر را وارد کنید:
+3- Then, navigate to the `shop-admin` directory and run the following command:
 
 ```bash
 npm i
 ```
 
-4- برای اجرای برنامه به پوشه اصلی پروژه رفته و دستور زیر را وارد کنید:
+4- To run the server, go to the main project directory and enter the following command:
 
 ```bash
 python main.py
 ```
 
-5- سپس برای اجرای پنل ادمین به پوشه `shop-admin` رفته و دستور زیر را وارد کنید:
+5- Then, to run the admin panel, go to the `shop-admin` directory and enter the following command:
 
 ```bash
 npm run dev
 ```
 
-6- مرورگر خود را باز کنید و برای رفتن به صفحه مشتری آدرس زیر را وارد کنید:
+6- Open your browser and enter the following address to go to the customer page:
 
 ```
 localhost:5000
 ```
 
-7- برای وارد شدن به پنل ادمین، لینک زیر را در مرورگر خود وارد کنید و نام کاربری و رمز عبور زیر را وارد کنید:
+7- To access the admin panel, enter the following link in your browser and enter the username and password below:
 
 ```
 localhost:5000/admin
@@ -46,4 +46,4 @@ username: admin
 password: admin
 ```
 
-8- پایان
+8- End
