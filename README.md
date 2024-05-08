@@ -47,3 +47,5 @@ password: admin
 ```
 
 8- End
+
+[دستور العمل به فارسی](README-FA.md)
