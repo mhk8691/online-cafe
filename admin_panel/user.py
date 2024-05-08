@@ -21,8 +21,6 @@ def get_db_connection():
     return conn
 
 
-
-
 # Get a user by ID
 def get_user(user_id):
     conn = get_db_connection()
@@ -44,7 +42,7 @@ def get_user(user_id):
 
 
 # Get all user
-def get_all_user(limit,sort):
+def get_all_user(limit, sort):
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute(
@@ -68,7 +66,7 @@ def get_all_user(limit,sort):
 
 
 # Get all user
-def get_all_user_filter(name, search, limit,sort):
+def get_all_user_filter(name, search, limit, sort):
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute(
@@ -198,7 +196,7 @@ def list_user():
 
 @app.route("/user", methods=["POST"])
 def add_user():
-    if len(user_information) !=0:
+    if len(user_information) != 0:
         username = request.json["username"]
         password = request.json["password"]
         email = request.json["email"]
@@ -216,7 +214,7 @@ def add_user():
 
 @app.route("/user/<int:user_id>", methods=["GET"])
 def get_user_by_id(user_id):
-    if len(user_information) !=0:
+    if len(user_information) != 0:
         user = get_user(user_id)
         if user is None:
             return "", 404
@@ -225,7 +223,7 @@ def get_user_by_id(user_id):
 
 @app.route("/user/<int:user_id>", methods=["PUT"])
 def update_user_by_id(user_id):
-    if len(user_information) !=0:
+    if len(user_information) != 0:
         username = request.json["username"]
         password = request.json["password"]
         email = request.json["email"]
@@ -244,7 +242,7 @@ def update_user_by_id(user_id):
 
 @app.route("/user/<int:user_id>", methods=["DELETE"])
 def delete_user_by_id(user_id):
-    if len(user_information) !=0:
+    if len(user_information) != 0:
         delete_user(user_id)
 
         return jsonify({"id": user_id}), 200
